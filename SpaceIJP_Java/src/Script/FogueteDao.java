@@ -1,6 +1,7 @@
 package Script;
 
 // imports necessários
+import DAObd.ConexaoBD;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -91,10 +92,10 @@ public class FogueteDao {
 
     // getLista (exemplo)
     public List<FogueteJA> getLista() {
-        String mysql = "SELECT * FROM Foguete";
+        String sql = "SELECT * FROM Foguete";
         List<FogueteJA> listaFoguete = new ArrayList<>();
         try {
-            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 FogueteJA obj = new FogueteJA();
@@ -113,4 +114,38 @@ public class FogueteDao {
         }
         return listaFoguete;
     }
+
+    public List<String> listarNomesFoguetes() {
+        List<String> nomes = new ArrayList<>();
+        String sql = "SELECT nomeFoguete FROM foguete ORDER BY nomeFoguete";
+
+        try (Connection conn = ConexaoBD.getConnection();
+                PreparedStatement pst = conn.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                nomes.add(rs.getString("nomeFoguete"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return nomes;
+    }
+
+    public Integer buscarCodPorNome(String nomeFoguete) {
+        String sql = "SELECT codFoguete FROM foguete WHERE nomeFoguete = ?";
+        try (Connection conn = ConexaoBD.getConnection();
+                PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, nomeFoguete);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("codFoguete");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

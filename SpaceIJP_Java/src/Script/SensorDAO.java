@@ -5,6 +5,7 @@
  */
 package Script;
 
+import DAObd.ConexaoBD;
 import java.sql.*;
 import java.util.*;
 import javax.swing.JOptionPane;
@@ -17,27 +18,32 @@ import javax.swing.JOptionPane;
 public class SensorDAO {
 
     public List<SensoresJA> getLista() {
-        List<SensoresJA> lista = new ArrayList<>();
-        String sql = "SELECT * FROM sensores";
+    List<SensoresJA> listaSensor = new ArrayList<>();
+    String sql = "SELECT s.codSensores, s.tipo, s.unidade, s.position, " +
+                 "s.Foguete_codFoguete, f.nomeFoguete " +
+                 "FROM sensores s " +
+                 "INNER JOIN foguete f ON s.Foguete_codFoguete = f.codFoguete";
 
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                SensoresJA s = new SensoresJA();
-                s.setCodSensores(rs.getInt("codSensores"));
-                s.setTipo(rs.getString("tipo"));
-                s.setUnidade(rs.getString("unidade"));
-                s.setPosition(rs.getString("position"));
-                s.setFogueteCodFoguete(rs.getInt("Foguete_codFoguete"));
-                lista.add(s);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar sensores: " + e.getMessage());
+    try {
+        PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            SensoresJA s = new SensoresJA();
+            s.setCodSensores(rs.getInt("codSensores"));
+            s.setTipo(rs.getString("tipo"));
+            s.setUnidade(rs.getString("unidade"));
+            s.setPosition(rs.getString("position"));
+            s.setFogueteCodFoguete(rs.getInt("Foguete_codFoguete"));
+            s.setFogueteNome(rs.getString("nomeFoguete")); // novo campo no model
+            listaSensor.add(s);
         }
-
-        return lista;
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Erro ao listar sensores: " + e.getMessage());
     }
+
+    return listaSensor;
+}
+
 
     public boolean inserir(SensoresJA s) {
         String sql = "INSERT INTO sensores (tipo, unidade, position, Foguete_codFoguete) VALUES (?, ?, ?, ?)";

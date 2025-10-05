@@ -362,8 +362,8 @@ public class FogueteJanela extends javax.swing.JFrame {
     inputNome.setText(f.getNomeFoguete());
     inputMaxCombustivel.setText(String.valueOf(f.getMaximoCombustivel()));
     inputVelocidade.setText(String.valueOf(f.getVelocidade()));
-    inputQuantCombustivel.setText(String.valueOf(f.getQuantCombustivel())); // só mostrar
-    inputStatus.setText(String.valueOf(f.getStatus())); // só mostrar
+    inputQuantCombustivel.setText(String.valueOf(f.getQuantCombustivel()));
+    inputStatus.setText(String.valueOf(f.getStatus()));
 
     criando = false;
     emEdicao = true;

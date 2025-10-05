@@ -34,6 +34,7 @@ public class Main extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        lancar = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         Foguetes = new javax.swing.JMenu();
         FoguetesGerenciar = new javax.swing.JMenuItem();
@@ -41,6 +42,8 @@ public class Main extends javax.swing.JFrame {
         sensoresGerenciar = new javax.swing.JMenuItem();
         abastecer = new javax.swing.JMenuItem();
         Funcionarios = new javax.swing.JMenu();
+        GerenciaFuncionarios = new javax.swing.JMenuItem();
+        GerenciaCargos = new javax.swing.JMenuItem();
         base = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
         sobre = new javax.swing.JMenu();
@@ -58,8 +61,18 @@ public class Main extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("SpaceIJP");
 
+        jButton1.setBackground(new java.awt.Color(255, 204, 51));
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jButton1.setText("Verificar Condições");
+
+        lancar.setBackground(new java.awt.Color(255, 204, 51));
+        lancar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        lancar.setText("Lançar Foguete");
+        lancar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lancarActionPerformed(evt);
+            }
+        });
 
         jMenuBar1.setBackground(new java.awt.Color(149, 156, 182));
 
@@ -83,6 +96,11 @@ public class Main extends javax.swing.JFrame {
         Foguetes.add(cargasGerenciar);
 
         sensoresGerenciar.setText("Gerenciar Sensores");
+        sensoresGerenciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sensoresGerenciarActionPerformed(evt);
+            }
+        });
         Foguetes.add(sensoresGerenciar);
 
         abastecer.setText("Abastecer Foguetes");
@@ -91,6 +109,23 @@ public class Main extends javax.swing.JFrame {
         jMenuBar1.add(Foguetes);
 
         Funcionarios.setText("Funcionarios");
+
+        GerenciaFuncionarios.setText("Gerenciar Funcionários");
+        GerenciaFuncionarios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GerenciaFuncionariosActionPerformed(evt);
+            }
+        });
+        Funcionarios.add(GerenciaFuncionarios);
+
+        GerenciaCargos.setText("Gerenciar Cargos");
+        GerenciaCargos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GerenciaCargosActionPerformed(evt);
+            }
+        });
+        Funcionarios.add(GerenciaCargos);
+
         jMenuBar1.add(Funcionarios);
 
         base.setText("Minhas Bases");
@@ -117,7 +152,8 @@ public class Main extends javax.swing.JFrame {
                 .addGap(257, 257, 257)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lancar, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(259, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -127,7 +163,9 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(229, Short.MAX_VALUE))
+                .addGap(31, 31, 31)
+                .addComponent(lancar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(158, Short.MAX_VALUE))
         );
 
         pack();
@@ -135,6 +173,11 @@ public class Main extends javax.swing.JFrame {
 
     private void cargasGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargasGerenciarActionPerformed
         // TODO add your handling code here:
+        CargaJanela form = new CargaJanela(this,true);
+        form.setLocationRelativeTo(null); //centro na tela
+        form.setResizable(false); //retira o botao maximizar
+ 
+        form.setVisible(true);
     }//GEN-LAST:event_cargasGerenciarActionPerformed
 
     private void FoguetesGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FoguetesGerenciarActionPerformed
@@ -150,6 +193,42 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
         JOptionPane.showMessageDialog(null, "Sistema de Cadastro\nDireitos Reservados\nVersão: 0.1");
     }//GEN-LAST:event_sobreActionPerformed
+
+    private void sensoresGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sensoresGerenciarActionPerformed
+        // TODO add your handling code here:
+        SensorJanela form = new SensorJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_sensoresGerenciarActionPerformed
+
+    private void GerenciaCargosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciaCargosActionPerformed
+        // TODO add your handling code here:
+        CargoJanela form = new CargoJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_GerenciaCargosActionPerformed
+
+    private void GerenciaFuncionariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciaFuncionariosActionPerformed
+        // TODO add your handling code here:
+        FuncionarioJanela form = new FuncionarioJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_GerenciaFuncionariosActionPerformed
+
+    private void lancarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lancarActionPerformed
+        // TODO add your handling code here:
+        LancamentoJanela form = new LancamentoJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_lancarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -194,6 +273,8 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu Foguetes;
     private javax.swing.JMenuItem FoguetesGerenciar;
     private javax.swing.JMenu Funcionarios;
+    private javax.swing.JMenuItem GerenciaCargos;
+    private javax.swing.JMenuItem GerenciaFuncionarios;
     private javax.swing.JMenuItem abastecer;
     private javax.swing.JMenu base;
     private javax.swing.JMenuItem cargasGerenciar;
@@ -202,6 +283,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JButton lancar;
     private javax.swing.JMenuItem sensoresGerenciar;
     private javax.swing.JMenu sobre;
     // End of variables declaration//GEN-END:variables

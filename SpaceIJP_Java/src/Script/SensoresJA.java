@@ -16,6 +16,7 @@ public class  SensoresJA{
     private String unidade;
     private String position;
     private int fogueteCodFoguete;
+    private String fogueteNome;
 
     public int getCodSensores() {
         return codSensores;
@@ -56,4 +57,13 @@ public class  SensoresJA{
     public void setFogueteCodFoguete(int fogueteCodFoguete) {
         this.fogueteCodFoguete = fogueteCodFoguete;
     }
+
+public String getFogueteNome() {
+    return fogueteNome;
+}
+
+public void setFogueteNome(String fogueteNome) {
+    this.fogueteNome = fogueteNome;
+}
+
 }
