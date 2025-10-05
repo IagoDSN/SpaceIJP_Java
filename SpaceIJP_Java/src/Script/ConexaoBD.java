@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package db;
+package Script;
 /**
  *
  * @author Iagod
@@ -11,12 +11,13 @@ package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ConexaoBD {
     private static final String URL = "jdbc:mysql://localhost:3306/space_ijppython?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = "sua_senha_aqui";
+    private static final String PASS = "ogai2009";
 
     static {
         try {
@@ -25,8 +26,14 @@ public class ConexaoBD {
             e.printStackTrace();
         }
     }
-
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASS);
+    }
+    public static PreparedStatement getPreparedStatement(String sql) throws SQLException {
+        return getConnection().prepareStatement(sql);
+    }
+
+    static PreparedStatement getPreparableStatement(String mysql) throws SQLException{
+        return getConnection().prepareStatement(mysql); //To change body of generated methods, choose Tools | Templates.
     }
 }
