@@ -45,6 +45,9 @@ public class Main extends javax.swing.JFrame {
         GerenciaFuncionarios = new javax.swing.JMenuItem();
         GerenciaCargos = new javax.swing.JMenuItem();
         base = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         sobre = new javax.swing.JMenu();
 
@@ -129,6 +132,16 @@ public class Main extends javax.swing.JFrame {
         jMenuBar1.add(Funcionarios);
 
         base.setText("Minhas Bases");
+
+        jMenuItem2.setText("Gerenciar Bases");
+        base.add(jMenuItem2);
+
+        jMenuItem3.setText("Gerenciar Missoes");
+        base.add(jMenuItem3);
+
+        jMenuItem4.setText("Gerenciar Destinos");
+        base.add(jMenuItem4);
+
         jMenuBar1.add(base);
 
         jMenu4.setText("Histórico de Lançamentos");
@@ -283,6 +296,9 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JButton lancar;
     private javax.swing.JMenuItem sensoresGerenciar;
     private javax.swing.JMenu sobre;
