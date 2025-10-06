@@ -15,9 +15,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ConexaoBD {
-    private static final String URL = "jdbc:mysql://localhost:3306/space_ijppython?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3307/space_ijppython?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = "ogai2009";
+    private static final String PASS = "1234";
 
     static {
         try {
