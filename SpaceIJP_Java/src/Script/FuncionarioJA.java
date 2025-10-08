@@ -22,7 +22,8 @@ public class FuncionarioJA {
     private String cep;
     private Date dataNascimento;
     private int status;
-    private int cargoCodCargo;   // FK
+    private int cargoCodCargo; // FK
+    private String email;
     private String cargoNome;    // para exibição
 
     // Getters e Setters
@@ -96,6 +97,14 @@ public class FuncionarioJA {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getCargoCodCargo() {

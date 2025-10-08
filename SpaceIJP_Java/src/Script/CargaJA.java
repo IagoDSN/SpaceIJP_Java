@@ -12,6 +12,7 @@ package Script;
 public class CargaJA {
     private int codCarga;
     private String tipo;
+    private int quantidade;
     private double peso;
     private String descricao;
     private int fogueteCodFoguete;
@@ -33,6 +34,15 @@ public class CargaJA {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+    
 
     public double getPeso() {
         return peso;

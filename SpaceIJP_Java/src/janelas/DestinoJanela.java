@@ -7,18 +7,18 @@ package janelas;
 
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
-import Script.BaseDAO;
-import Script.BaseJA;
+import Script.DestinoDAO;
+import Script.DestinoJA;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author Iagod
  */
-public class BaseJanela extends javax.swing.JFrame {
+public class DestinoJanela extends javax.swing.JFrame {
 
-    private BaseDAO baseDao = new BaseDAO();
-    List<BaseJA> listaBases = baseDao.getLista();
+    private DestinoDAO destinoDao = new DestinoDAO();
+    List<DestinoJA> listaDestinos = destinoDao.getLista();
 
     private boolean emEdicao = false;
     private boolean criando = false;
@@ -26,32 +26,36 @@ public class BaseJanela extends javax.swing.JFrame {
     /**
      * Creates new form FogueteJanela
      */
-    public BaseJanela() {
+    public DestinoJanela() {
         initComponents();
     }
 
-    BaseJanela(Main aThis, boolean b) {
+    DestinoJanela(Main aThis, boolean b) {
         initComponents();
-        carregarTabelaFoguetes();
+        carregarTabelaDestinos();
     }
 
-    private void carregarTabelaFoguetes() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaBase.getModel();
+    private void carregarTabelaDestinos() {
+        DefaultTableModel modelo = (DefaultTableModel) tabelaDestino.getModel();
         modelo.setRowCount(0);
-        for (BaseJA f : listaBases) {
+        for (DestinoJA f : listaDestinos) {
             modelo.addRow(new Object[]{
-                f.getCodBaseLancamento(),
-                f.getNomeBase(),
-                f.getPaisBase(),
-                f.getPrecoConstrucao(),
+                f.getCodDestino(),
+                f.getNomeLocal(),
+                f.getDistancia(),
+                f.getPressao(),
+                f.getAceleracaoGravidade(),
+                f.getTipo(),
             });
         }
     }
 
     private void trataEdicao(boolean status){
     inputNome.setEnabled(status);
-    inputPais.setEnabled(status);
-    inputPreco.setEnabled(status);
+    inputDistancia.setEnabled(status);
+    inputPressao.setEnabled(status);
+    inputAceleracao.setEnabled(status);
+    inputTipo.setEnabled(status);
 
     salvar.setEnabled(status);
     cancelar.setEnabled(status);
@@ -62,18 +66,23 @@ public class BaseJanela extends javax.swing.JFrame {
 
     public boolean validaCampos() {
         if (inputNome.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o nome da Base");
+            JOptionPane.showMessageDialog(this, "Informe o nome do Destino");
             inputNome.requestFocus();
             return false;
         }
-        if (inputPais.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o Pais da Base");
-            inputPais.requestFocus();
+        if (inputDistancia.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe a distancia do Destino");
+            inputDistancia.requestFocus();
             return false;
         }
-        if (inputPreco.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o Preço de construção");
-            inputPreco.requestFocus();
+        if (inputPressao.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe a Pressao do Destino");
+            inputPressao.requestFocus();
+            return false;
+        }
+        if (inputAceleracao.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe a Aceleração do Destino");
+            inputAceleracao.requestFocus();
             return false;
         }
         return true;
@@ -83,8 +92,8 @@ public class BaseJanela extends javax.swing.JFrame {
         int codigo = 1;
         while (true) {
             boolean existe = false;
-            for (BaseJA f : listaBases) {
-                if (f.getCodBaseLancamento() == codigo) {
+            for (DestinoJA f : listaDestinos) {
+                if (f.getCodDestino()== codigo) {
                     existe = true;
                     break;
                 }
@@ -111,7 +120,7 @@ public class BaseJanela extends javax.swing.JFrame {
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaBase = new javax.swing.JTable();
+        tabelaDestino = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -119,9 +128,13 @@ public class BaseJanela extends javax.swing.JFrame {
         cancelar = new javax.swing.JButton();
         salvar = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        inputPais = new javax.swing.JTextField();
+        inputDistancia = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        inputPreco = new javax.swing.JTextField();
+        inputPressao = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        inputAceleracao = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        inputTipo = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gerenciador de Foguetes");
@@ -187,15 +200,15 @@ public class BaseJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaBase.setModel(new javax.swing.table.DefaultTableModel(
+        tabelaDestino.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Codigo", "Nome", "Pais", "Preçio de construção"
+                "Codigo", "Nome", "Distancia", "Pressão", "Aceleração Gravidade", "Tipo"
             }
         ));
-        jScrollPane1.setViewportView(tabelaBase);
+        jScrollPane1.setViewportView(tabelaDestino);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");
@@ -224,10 +237,16 @@ public class BaseJanela extends javax.swing.JFrame {
         });
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel3.setText("Pais:");
+        jLabel3.setText("Distancia");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel4.setText("Preço de construção:");
+        jLabel4.setText("Pressão:");
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel5.setText("Tipo:");
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel6.setText("Aceleração Gravidade:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -250,18 +269,32 @@ public class BaseJanela extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inputPais, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(inputDistancia, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(122, 122, 122)
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(inputPreco, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addGap(138, 138, 138)
+                                            .addComponent(jLabel4)
+                                            .addGap(85, 85, 85))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jLabel6)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(138, 138, 138)
+                                        .addComponent(jLabel5)
+                                        .addGap(106, 106, 106)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(inputTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(inputPressao, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(inputAceleracao, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(182, 182, 182)
                                 .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(41, 41, 41)
                                 .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 103, Short.MAX_VALUE)))
+                        .addGap(0, 100, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -277,15 +310,19 @@ public class BaseJanela extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel4)
-                        .addComponent(inputPreco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(inputPressao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(inputAceleracao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(inputPais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputDistancia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5)
+                    .addComponent(inputTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -297,19 +334,20 @@ public class BaseJanela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-    BaseJA f = new BaseJA();
-    f.setCodBaseLancamento(0);
+   DestinoJA f = new DestinoJA();
+    f.setCodDestino(0);
 
-    listaBases.add(f);
-    carregarTabelaFoguetes();
+    listaDestinos.add(f);
+    carregarTabelaDestinos();
 
-    int linha = listaBases.size() - 1;
-    if (linha >= 0) tabelaBase.setRowSelectionInterval(linha, linha);
+    int linha = listaDestinos.size() - 1;
+    if (linha >= 0) tabelaDestino.setRowSelectionInterval(linha, linha);
 
     inputCodigo.setText("0");
     inputNome.setText("");
-    inputPais.setText("");
-    inputPreco.setText("0");
+    inputPressao.setText("0");
+    inputAceleracao.setText("0");
+    inputTipo.setText("");
 
     criando = true;
     emEdicao = true;
@@ -318,16 +356,17 @@ public class BaseJanela extends javax.swing.JFrame {
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
+    int linha = tabelaDestino.getSelectedRow();
     if (linha < 0) {
         JOptionPane.showMessageDialog(this, "Selecione uma Base para editar!");
         return;
     }
-    BaseJA f = listaBases.get(linha);
-    inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
-    inputNome.setText(f.getNomeBase());
-    inputPais.setText(String.valueOf(f.getPaisBase()));
-    inputPreco.setText(String.valueOf(f.getPrecoConstrucao()));
+    DestinoJA f = listaDestinos.get(linha);
+    inputCodigo.setText(String.valueOf(f.getCodDestino()));
+    inputNome.setText(f.getNomeLocal());
+    inputPressao.setText(String.valueOf(f.getPressao()));
+    inputAceleracao.setText(String.valueOf(f.getAceleracaoGravidade()));
+    inputNome.setText(f.getTipo());
 
     criando = false;
     emEdicao = true;
@@ -336,31 +375,31 @@ public class BaseJanela extends javax.swing.JFrame {
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
+    int linha = tabelaDestino.getSelectedRow();
     if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma BASE para deletar!");
+        JOptionPane.showMessageDialog(this, "Selecione um Destino para deletar!");
         return;
     }
-    BaseJA f = listaBases.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Base " + f.getNomeBase() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
+    DestinoJA f = listaDestinos.get(linha);
+    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir o Destino " + f.getNomeLocal()+ "?", "Confirma", JOptionPane.YES_NO_OPTION);
     if (op != JOptionPane.YES_OPTION) return;
 
-    boolean ok = baseDao.remover(f.getCodBaseLancamento());
+    boolean ok = destinoDao.remover(f.getCodDestino());
     if (ok) {
-        listaBases.remove(linha);
-        carregarTabelaFoguetes();
+        listaDestinos.remove(linha);
+        carregarTabelaDestinos();
     }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
         // TODO add your handling code here:
-        carregarTabelaFoguetes();
+        carregarTabelaDestinos();
     }//GEN-LAST:event_atualizarActionPerformed
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
      if (!emEdicao) return;
-    int linha = tabelaBase.getSelectedRow();
+    int linha = tabelaDestino.getSelectedRow();
     if (linha < 0) {
         JOptionPane.showMessageDialog(this, "Selecione a linha para salvar!");
         return;
@@ -368,25 +407,27 @@ public class BaseJanela extends javax.swing.JFrame {
 
     if (!validaCampos()) return;
 
-    BaseJA f = listaBases.get(linha);
+    DestinoJA f = listaDestinos.get(linha);
 
-    f.setNomeBase(inputNome.getText().trim());
-    f.setPaisBase(inputPais.getText().trim());
+    f.setNomeLocal(inputNome.getText().trim());
+    f.setTipo(inputTipo.getText().trim());
     try {
-        f.setPrecoConstrucao(Double.parseDouble(inputPreco.getText().trim()));
+        f.setDistancia(Float.parseFloat(inputDistancia.getText().trim()));
+        f.setPressao(Double.parseDouble(inputDistancia.getText().trim()));
+        f.setAceleracaoGravidade(Double.parseDouble(inputAceleracao.getText().trim()));
     } catch (NumberFormatException ex) {
         JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
         return;
     }
 
     boolean ok;
-    if (f.getCodBaseLancamento() == 0) {
-        ok = baseDao.inserir(f);
+    if (f.getCodDestino()== 0) {
+        ok = destinoDao.inserir(f);
         if (ok) {
-            inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
+            inputCodigo.setText(String.valueOf(f.getCodDestino()));
         }
     } else {
-        ok = baseDao.alterar(f);
+        ok = destinoDao.alterar(f);
     }
 
     if (!ok) {
@@ -394,11 +435,11 @@ public class BaseJanela extends javax.swing.JFrame {
         return;
     }
 
-    listaBases = baseDao.getLista();
-    carregarTabelaFoguetes();
-    for (int i = 0; i < listaBases.size(); i++) {
-        if (listaBases.get(i).getCodBaseLancamento() == f.getCodBaseLancamento()) {
-            tabelaBase.setRowSelectionInterval(i, i);
+    listaDestinos = destinoDao.getLista();
+    carregarTabelaDestinos();
+    for (int i = 0; i < listaDestinos.size(); i++) {
+        if (listaDestinos.get(i).getCodDestino()== f.getCodDestino()) {
+            tabelaDestino.setRowSelectionInterval(i, i);
             break;
         }
     }
@@ -413,16 +454,16 @@ public class BaseJanela extends javax.swing.JFrame {
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
     if (criando) {
-        for (int i = listaBases.size() - 1; i >= 0; i--) {
-            if (listaBases.get(i).getCodBaseLancamento() == 0) {
-                listaBases.remove(i);
+        for (int i = listaDestinos.size() - 1; i >= 0; i--) {
+            if (listaDestinos.get(i).getCodDestino() == 0) {
+                listaDestinos.remove(i);
                 break;
             }
         }
-        carregarTabelaFoguetes();
+        carregarTabelaDestinos();
     } else {
-        listaBases = baseDao.getLista();
-        carregarTabelaFoguetes();
+        listaDestinos = destinoDao.getLista();
+        carregarTabelaDestinos();
     }
     emEdicao = false;
     criando = false;
@@ -469,18 +510,22 @@ public class BaseJanela extends javax.swing.JFrame {
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
     private javax.swing.JButton editar;
+    private javax.swing.JTextField inputAceleracao;
     private javax.swing.JTextField inputCodigo;
+    private javax.swing.JTextField inputDistancia;
     private javax.swing.JTextField inputNome;
-    private javax.swing.JTextField inputPais;
-    private javax.swing.JTextField inputPreco;
+    private javax.swing.JTextField inputPressao;
+    private javax.swing.JTextField inputTipo;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaBase;
+    private javax.swing.JTable tabelaDestino;
     // End of variables declaration//GEN-END:variables
 }

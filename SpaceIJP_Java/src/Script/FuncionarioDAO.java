@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 public class FuncionarioDAO {
 
     public boolean inserir(FuncionarioJA f) {
-        String sql = "INSERT INTO funcionario (nomeFuncionario, cpf, salarioAtual, rg, telefone, cep, dataNascimento, status, cargo_codcargo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO funcionario (nomeFuncionario, cpf, salarioAtual, rg, telefone, cep, dataNascimento, status, email, cargo_codcargo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setString(1, f.getNomeFuncionario());
@@ -29,7 +29,8 @@ public class FuncionarioDAO {
             pst.setString(6, f.getCep());
             pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
             pst.setInt(8, f.getStatus());
-            pst.setInt(9, f.getCargoCodCargo());
+            pst.setString(9, f.getEmail());
+            pst.setInt(10, f.getCargoCodCargo());
 
             if (pst.executeUpdate() > 0) {
                 ResultSet rs = pst.getGeneratedKeys();
@@ -45,7 +46,7 @@ public class FuncionarioDAO {
     }
 
     public boolean alterar(FuncionarioJA f) {
-        String sql = "UPDATE funcionario SET nomeFuncionario=?, cpf=?, salarioAtual=?, rg=?, telefone=?, cep=?, dataNascimento=?, status=?, cargo_codcargo=? WHERE codFuncionario=?";
+        String sql = "UPDATE funcionario SET nomeFuncionario=?, cpf=?, salarioAtual=?, rg=?, telefone=?, cep=?, dataNascimento=?, status=?, email=?, cargo_codcargo=? WHERE codFuncionario=?";
         try {
             PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
             pst.setString(1, f.getNomeFuncionario());
@@ -56,8 +57,9 @@ public class FuncionarioDAO {
             pst.setString(6, f.getCep());
             pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
             pst.setInt(8, f.getStatus());
-            pst.setInt(9, f.getCargoCodCargo());
-            pst.setInt(10, f.getCodFuncionario());
+            pst.setString(9, f.getEmail());
+            pst.setInt(10, f.getCargoCodCargo());
+            pst.setInt(11, f.getCodFuncionario());
 
             return pst.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -98,6 +100,7 @@ public class FuncionarioDAO {
                 f.setCep(rs.getString("cep"));
                 f.setDataNascimento(rs.getDate("dataNascimento"));
                 f.setStatus(rs.getInt("status"));
+                f.setEmail(rs.getString("email"));
                 f.setCargoCodCargo(rs.getInt("cargo_codcargo"));
                 f.setCargoNome(rs.getString("nomeCargo"));
                 lista.add(f);
