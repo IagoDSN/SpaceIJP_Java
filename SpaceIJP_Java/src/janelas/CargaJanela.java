@@ -37,6 +37,14 @@ public class CargaJanela extends javax.swing.JFrame {
         initComponents();
         carregarTabelaSensores();
         configurarComboFoguetes();
+        salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputTipo.setEnabled(false);
+        inQuantidade.setEnabled(false);
+        inputPeso.setEnabled(false);
+        inputDescricao.setEnabled(false);
+        cbFoguetes.setEnabled(false);
     }
 
     private void carregarTabelaSensores() {
@@ -67,14 +75,17 @@ public class CargaJanela extends javax.swing.JFrame {
 
     private void trataEdicao(boolean status) {
         inputTipo.setEnabled(status);
+        inQuantidade.setEnabled(status);
         inputPeso.setEnabled(status);
         inputDescricao.setEnabled(status);
+        cbFoguetes.setEnabled(status);
 
         salvar.setEnabled(status);
         cancelar.setEnabled(status);
         cadastrar.setEnabled(!status);
         editar.setEnabled(!status);
         remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
     }
 
     public boolean validaCampos() {
@@ -225,8 +236,24 @@ public class CargaJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "tipo", "Quantidade", "Peso", "Descrição", "foguete"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaCarga);
+        if (tabelaCarga.getColumnModel().getColumnCount() > 0) {
+            tabelaCarga.getColumnModel().getColumn(0).setResizable(false);
+            tabelaCarga.getColumnModel().getColumn(1).setResizable(false);
+            tabelaCarga.getColumnModel().getColumn(2).setResizable(false);
+            tabelaCarga.getColumnModel().getColumn(3).setResizable(false);
+            tabelaCarga.getColumnModel().getColumn(4).setResizable(false);
+            tabelaCarga.getColumnModel().getColumn(5).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");

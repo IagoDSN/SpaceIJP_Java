@@ -38,6 +38,19 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         initComponents();
         carregarTabelaFuncionario();
         configurarComboCargos();
+        salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputNome.setEnabled(false);
+        inputCpf.setEnabled(false);
+        inputSalario.setEnabled(false);
+        inputRG.setEnabled(false);
+        inputTelefone.setEnabled(false);
+        inputCEP.setEnabled(false);
+        inputNascimento.setEnabled(false);
+        inputEmail.setEnabled(false);
+        inputStatus.setEnabled(false);
+        cbCargos.setEnabled(false);
     }
 
     private void carregarTabelaFuncionario() {
@@ -81,6 +94,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         inputTelefone.setEnabled(status);
         inputCEP.setEnabled(status);
         inputNascimento.setEnabled(status);
+        inputEmail.setEnabled(status);
         cbCargos.setEnabled(status);
 
         salvar.setEnabled(status);
@@ -88,6 +102,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         cadastrar.setEnabled(!status);
         editar.setEnabled(!status);
         remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
     }
 
     public boolean validaCampos() {
@@ -253,8 +268,29 @@ public class FuncionarioJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "Nome", "CPF", "Salario Atual", "RG", "Telefone", "CEP", "Data Nascimento", "Status", "Email", "Cargo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, true, false, false, false, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaFuncionario);
+        if (tabelaFuncionario.getColumnModel().getColumnCount() > 0) {
+            tabelaFuncionario.getColumnModel().getColumn(0).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(1).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(2).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(3).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(4).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(5).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(6).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(7).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(8).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(9).setResizable(false);
+            tabelaFuncionario.getColumnModel().getColumn(10).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");

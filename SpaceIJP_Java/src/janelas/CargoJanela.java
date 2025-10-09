@@ -30,6 +30,11 @@ public class CargoJanela extends javax.swing.JFrame {
     CargoJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaCargos();
+        salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputNome.setEnabled(false);
+        inputSalarioInitial.setEnabled(false);
     }
 
     private void carregarTabelaCargos() {
@@ -53,6 +58,7 @@ public class CargoJanela extends javax.swing.JFrame {
     cadastrar.setEnabled(!status);
     editar.setEnabled(!status);
     remover.setEnabled(!status);
+    atualizar.setEnabled(!status);
 }
 
     public boolean validaCampos() {
@@ -182,8 +188,21 @@ public class CargoJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "Nome", "Salario Inicial"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaCargo);
+        if (tabelaCargo.getColumnModel().getColumnCount() > 0) {
+            tabelaCargo.getColumnModel().getColumn(0).setResizable(false);
+            tabelaCargo.getColumnModel().getColumn(1).setResizable(false);
+            tabelaCargo.getColumnModel().getColumn(2).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");

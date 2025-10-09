@@ -33,6 +33,14 @@ public class DestinoJanela extends javax.swing.JFrame {
     DestinoJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaDestinos();
+        salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputNome.setEnabled(false);
+        inputDistancia.setEnabled(false);
+        inputPressao.setEnabled(false);
+        inputAceleracao.setEnabled(false);
+        inputTipo.setEnabled(false);
     }
 
     private void carregarTabelaDestinos() {
@@ -62,6 +70,7 @@ public class DestinoJanela extends javax.swing.JFrame {
     cadastrar.setEnabled(!status);
     editar.setEnabled(!status);
     remover.setEnabled(!status);
+    atualizar.setEnabled(!status);
 }
 
     public boolean validaCampos() {
@@ -207,8 +216,24 @@ public class DestinoJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "Nome", "Distancia", "Pressão", "Aceleração Gravidade", "Tipo"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaDestino);
+        if (tabelaDestino.getColumnModel().getColumnCount() > 0) {
+            tabelaDestino.getColumnModel().getColumn(0).setResizable(false);
+            tabelaDestino.getColumnModel().getColumn(1).setResizable(false);
+            tabelaDestino.getColumnModel().getColumn(2).setResizable(false);
+            tabelaDestino.getColumnModel().getColumn(3).setResizable(false);
+            tabelaDestino.getColumnModel().getColumn(4).setResizable(false);
+            tabelaDestino.getColumnModel().getColumn(5).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");

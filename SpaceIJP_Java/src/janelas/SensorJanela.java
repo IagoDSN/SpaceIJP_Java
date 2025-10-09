@@ -40,6 +40,13 @@ public class SensorJanela extends javax.swing.JFrame {
         initComponents();
         carregarTabelaSensores();
         configurarComboFoguetes();
+        salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputTipo.setEnabled(false);
+        inputUnidade.setEnabled(false);
+        inputPosition.setEnabled(false);
+        cbFoguetes.setEnabled(false);
     }
 
     private void carregarTabelaSensores() {
@@ -72,12 +79,14 @@ public class SensorJanela extends javax.swing.JFrame {
         inputTipo.setEnabled(status);
         inputUnidade.setEnabled(status);
         inputPosition.setEnabled(status);
+        cbFoguetes.setEnabled(status);
 
         salvar.setEnabled(status);
         cancelar.setEnabled(status);
         cadastrar.setEnabled(!status);
         editar.setEnabled(!status);
         remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
     }
 
     public boolean validaCampos() {
@@ -221,8 +230,23 @@ public class SensorJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "tipo", "unidade", "posicao", "foguete"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaSensor);
+        if (tabelaSensor.getColumnModel().getColumnCount() > 0) {
+            tabelaSensor.getColumnModel().getColumn(0).setResizable(false);
+            tabelaSensor.getColumnModel().getColumn(1).setResizable(false);
+            tabelaSensor.getColumnModel().getColumn(2).setResizable(false);
+            tabelaSensor.getColumnModel().getColumn(3).setResizable(false);
+            tabelaSensor.getColumnModel().getColumn(4).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");

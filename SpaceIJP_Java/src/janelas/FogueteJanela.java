@@ -33,6 +33,14 @@ public class FogueteJanela extends javax.swing.JFrame {
     FogueteJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaFoguetes();
+         salvar.setEnabled(false);
+        cancelar.setEnabled(false);
+        inputCodigo.setEnabled(false);
+        inputNome.setEnabled(false);
+        inputMaxCombustivel.setEnabled(false);
+        inputVelocidade.setEnabled(false);
+        inputQuantCombustivel.setEnabled(false);
+        inputStatus.setEnabled(false);
     }
 
     private void carregarTabelaFoguetes() {
@@ -60,6 +68,7 @@ public class FogueteJanela extends javax.swing.JFrame {
     cadastrar.setEnabled(!status);
     editar.setEnabled(!status);
     remover.setEnabled(!status);
+    atualizar.setEnabled(!status);
 }
 
     public boolean validaCampos() {
@@ -200,8 +209,24 @@ public class FogueteJanela extends javax.swing.JFrame {
             new String [] {
                 "Codigo", "Nome", "Max Combustivel", "Quant Combutibel", "Velocidade", "Status"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tabelaFoguete);
+        if (tabelaFoguete.getColumnModel().getColumnCount() > 0) {
+            tabelaFoguete.getColumnModel().getColumn(0).setResizable(false);
+            tabelaFoguete.getColumnModel().getColumn(1).setResizable(false);
+            tabelaFoguete.getColumnModel().getColumn(2).setResizable(false);
+            tabelaFoguete.getColumnModel().getColumn(3).setResizable(false);
+            tabelaFoguete.getColumnModel().getColumn(4).setResizable(false);
+            tabelaFoguete.getColumnModel().getColumn(5).setResizable(false);
+        }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Codigo:");
