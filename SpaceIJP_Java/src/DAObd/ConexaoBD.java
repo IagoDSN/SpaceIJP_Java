@@ -15,13 +15,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ConexaoBD {
-    private static final String URL = "jdbc:mysql://localhost:3307/space_ijp?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/space_ijp?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = "1234";
+    private static final String PASS = "ogai2009";
 
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // driver do Connector/J 8.x
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

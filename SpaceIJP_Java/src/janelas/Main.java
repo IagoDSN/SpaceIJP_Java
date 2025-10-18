@@ -50,10 +50,13 @@ public class Main extends javax.swing.JFrame {
         GerenciaCargos = new javax.swing.JMenuItem();
         base = new javax.swing.JMenu();
         BasesGerenciar = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        MissaoGerenciar = new javax.swing.JMenuItem();
         DestinosGerenciar = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
+        LancamentosGerenciar = new javax.swing.JMenuItem();
+        GerenciarFinanciamentos = new javax.swing.JMenuItem();
         sobre = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -178,8 +181,13 @@ public class Main extends javax.swing.JFrame {
         });
         base.add(BasesGerenciar);
 
-        jMenuItem3.setText("Gerenciar Missoes");
-        base.add(jMenuItem3);
+        MissaoGerenciar.setText("Gerenciar Missoes");
+        MissaoGerenciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MissaoGerenciarActionPerformed(evt);
+            }
+        });
+        base.add(MissaoGerenciar);
 
         DestinosGerenciar.setText("Gerenciar Destinos");
         DestinosGerenciar.addActionListener(new java.awt.event.ActionListener() {
@@ -191,7 +199,24 @@ public class Main extends javax.swing.JFrame {
 
         jMenuBar1.add(base);
 
-        jMenu4.setText("Histórico de Lançamentos");
+        jMenu4.setText("Históricos");
+
+        LancamentosGerenciar.setText("Lançamentos");
+        LancamentosGerenciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LancamentosGerenciarActionPerformed(evt);
+            }
+        });
+        jMenu4.add(LancamentosGerenciar);
+
+        GerenciarFinanciamentos.setText("Financiamentos");
+        GerenciarFinanciamentos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GerenciarFinanciamentosActionPerformed(evt);
+            }
+        });
+        jMenu4.add(GerenciarFinanciamentos);
+
         jMenuBar1.add(jMenu4);
 
         sobre.setText("Sobre");
@@ -200,6 +225,10 @@ public class Main extends javax.swing.JFrame {
                 sobreActionPerformed(evt);
             }
         });
+
+        jMenuItem2.setText("Versão 0.1");
+        sobre.add(jMenuItem2);
+
         jMenuBar1.add(sobre);
 
         setJMenuBar(jMenuBar1);
@@ -270,7 +299,7 @@ public class Main extends javax.swing.JFrame {
 
     private void lancarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lancarActionPerformed
         // TODO add your handling code here:
-        LancamentoJanela form = new LancamentoJanela(this,true);
+        SimuladorJanela form = new SimuladorJanela(this,true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
  
@@ -298,6 +327,33 @@ public class Main extends javax.swing.JFrame {
  
         form.setVisible(true);
     }//GEN-LAST:event_DestinosGerenciarActionPerformed
+
+    private void MissaoGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MissaoGerenciarActionPerformed
+        // TODO add your handling code here:
+        MissaoJanela form = new MissaoJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_MissaoGerenciarActionPerformed
+
+    private void LancamentosGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LancamentosGerenciarActionPerformed
+        // TODO add your handling code here:
+        LancamentosJanela form = new LancamentosJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_LancamentosGerenciarActionPerformed
+
+    private void GerenciarFinanciamentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciarFinanciamentosActionPerformed
+        // TODO add your handling code here:
+        FinanciamentosJanela form = new FinanciamentosJanela(this,true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+ 
+        form.setVisible(true);
+    }//GEN-LAST:event_GerenciarFinanciamentosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -346,6 +402,9 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu Funcionarios;
     private javax.swing.JMenuItem GerenciaCargos;
     private javax.swing.JMenuItem GerenciaFuncionarios;
+    private javax.swing.JMenuItem GerenciarFinanciamentos;
+    private javax.swing.JMenuItem LancamentosGerenciar;
+    private javax.swing.JMenuItem MissaoGerenciar;
     private javax.swing.JMenuItem abastecer;
     private javax.swing.JMenu base;
     private javax.swing.JMenuItem cargasGerenciar;
@@ -354,7 +413,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JButton lancar;

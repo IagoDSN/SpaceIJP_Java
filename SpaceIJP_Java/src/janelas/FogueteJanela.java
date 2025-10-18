@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import Script.FogueteDao;
 import Script.FogueteJA;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -41,6 +42,7 @@ public class FogueteJanela extends javax.swing.JFrame {
         inputVelocidade.setEnabled(false);
         inputQuantCombustivel.setEnabled(false);
         inputStatus.setEnabled(false);
+        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
     private void carregarTabelaFoguetes() {

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import Script.CargoDAO;
 import Script.CargoJA;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -35,6 +36,7 @@ public class CargoJanela extends javax.swing.JFrame {
         inputCodigo.setEnabled(false);
         inputNome.setEnabled(false);
         inputSalarioInitial.setEnabled(false);
+        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
     private void carregarTabelaCargos() {
@@ -118,7 +120,7 @@ public class CargoJanela extends javax.swing.JFrame {
         inputSalarioInitial = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Gerenciador de Foguetes");
+        setTitle("Gerenciador de Cargos");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
 

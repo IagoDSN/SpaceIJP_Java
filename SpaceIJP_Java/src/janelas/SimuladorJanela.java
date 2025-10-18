@@ -12,13 +12,14 @@ import java.awt.*;
  *
  * @author Iagod
  */
-public class LancamentoJanela extends javax.swing.JFrame {
+public class SimuladorJanela extends javax.swing.JFrame {
 
-    public LancamentoJanela() {
+    public SimuladorJanela() {
         
     }
 
-    LancamentoJanela(Main aThis, boolean b) {
+    SimuladorJanela(Main aThis, boolean b) {
+      setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
       setTitle("Lançamento");
         setSize(800, 520);
         setLocationRelativeTo(null);
@@ -80,20 +81,21 @@ public class LancamentoJanela extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(LancamentoJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SimuladorJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(LancamentoJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SimuladorJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(LancamentoJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SimuladorJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(LancamentoJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SimuladorJanela.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LancamentoJanela().setVisible(true);
+                new SimuladorJanela().setVisible(true);
             }
         });
     }

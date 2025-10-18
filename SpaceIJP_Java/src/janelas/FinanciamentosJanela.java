@@ -7,82 +7,99 @@ package janelas;
 
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
-import Script.BaseDAO;
-import Script.BaseJA;
+
+import Script.FinanciamentoDAO;
+import Script.FinanciamentoJA;
+import Script.MissaoDAO;
+import Script.MissaoJA;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author Iagod
  */
-public class BaseJanela extends javax.swing.JFrame {
+public class FinanciamentosJanela extends javax.swing.JFrame {
 
-    private BaseDAO baseDao = new BaseDAO();
-    List<BaseJA> listaBases = baseDao.getLista();
+    private FinanciamentoDAO financiamentoDao = new FinanciamentoDAO();
+    List<FinanciamentoJA> listaFinanciamento = financiamentoDao.getLista();
+
+    private MissaoDAO missaoDao = new MissaoDAO();
 
     private boolean emEdicao = false;
     private boolean criando = false;
 
-    /**
-     * Creates new form FogueteJanela
-     */
-    public BaseJanela() {
+    public FinanciamentosJanela() {
         initComponents();
     }
 
-    BaseJanela(Main aThis, boolean b) {
+    FinanciamentosJanela(Main aThis, boolean b) {
         initComponents();
-        carregarTabelaFoguetes();
+        carregarTabelaFinanciamentos();
+        configurarComboMissoes();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
-        inputNome.setEnabled(false);
-        inputPais.setEnabled(false);
-        inputPreco.setEnabled(false);
+        inputPatrocinador.setEnabled(false);
+        inputValor.setEnabled(false);
+        cbMissoes.setEnabled(false);
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-    private void carregarTabelaFoguetes() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaBase.getModel();
-        modelo.setRowCount(0);
-        for (BaseJA f : listaBases) {
-            modelo.addRow(new Object[]{
-                f.getCodBaseLancamento(),
-                f.getNomeBase(),
-                f.getPaisBase(),
-                f.getPrecoConstrucao(),
-            });
+    private void carregarTabelaFinanciamentos() {
+        DefaultTableModel modelo = (DefaultTableModel) tabelaLancamentos.getModel();
+    modelo.setRowCount(0);
+    for (FinanciamentoJA l : listaFinanciamento) {
+        modelo.addRow(new Object[]{
+            l.getCodFinanciamento(),
+            l.getPatrocinador(),
+            l.getValor(),
+            l.getNomeMissao()
+        });
+    }
+    }
+    private void configurarComboMissoes() {
+        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
+        MissaoDAO fdao = new MissaoDAO();
+        List<MissaoJA> missoes = fdao.getLista();
+        for (MissaoJA f : missoes) {
+            modelo.addElement(f);
         }
+        cbMissoes.setModel(modelo);
+        cbMissoes.setSelectedIndex(-1);
     }
 
-    private void trataEdicao(boolean status){
-    inputNome.setEnabled(status);
-    inputPais.setEnabled(status);
-    inputPreco.setEnabled(status);
+    private void trataEdicao(boolean status) {
+        inputPatrocinador.setEnabled(status);
+        inputValor.setEnabled(status);
+        cbMissoes.setEnabled(status);
 
-    salvar.setEnabled(status);
-    cancelar.setEnabled(status);
-    cadastrar.setEnabled(!status);
-    editar.setEnabled(!status);
-    remover.setEnabled(!status);
-    atualizar.setEnabled(!status);
-}
+        salvar.setEnabled(status);
+        cancelar.setEnabled(status);
+        cadastrar.setEnabled(!status);
+        editar.setEnabled(!status);
+        remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
+    }
 
     public boolean validaCampos() {
-        if (inputNome.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o nome da Base");
-            inputNome.requestFocus();
+        if (inputPatrocinador.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o patrocinador do financiamento");
+            inputPatrocinador.requestFocus();
             return false;
         }
-        if (inputPais.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o Pais da Base");
-            inputPais.requestFocus();
+        if (inputValor.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o valor do financiamento");
+            inputValor.requestFocus();
             return false;
         }
-        if (inputPreco.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o Preço de construção");
-            inputPreco.requestFocus();
+        if (cbMissoes.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o financiamento pertence");
+            cbMissoes.requestFocus();
             return false;
         }
         return true;
@@ -92,8 +109,8 @@ public class BaseJanela extends javax.swing.JFrame {
         int codigo = 1;
         while (true) {
             boolean existe = false;
-            for (BaseJA f : listaBases) {
-                if (f.getCodBaseLancamento() == codigo) {
+            for (FinanciamentoJA s : listaFinanciamento) {
+                if (s.getCodFinanciamento()== codigo) {
                     existe = true;
                     break;
                 }
@@ -120,20 +137,20 @@ public class BaseJanela extends javax.swing.JFrame {
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaBase = new javax.swing.JTable();
+        tabelaLancamentos = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        inputNome = new javax.swing.JTextField();
+        inputPatrocinador = new javax.swing.JTextField();
         cancelar = new javax.swing.JButton();
         salvar = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        inputPais = new javax.swing.JTextField();
+        inputValor = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        inputPreco = new javax.swing.JTextField();
+        cbMissoes = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Gerenciador de Bases");
+        setTitle("Gerenciador de Lancamentos");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
 
@@ -182,7 +199,7 @@ public class BaseJanela extends javax.swing.JFrame {
                 .addComponent(remover, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(atualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -196,12 +213,12 @@ public class BaseJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaBase.setModel(new javax.swing.table.DefaultTableModel(
+        tabelaLancamentos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Codigo", "Nome", "Pais", "Preçio de construção"
+                "Codigo", "Patrocinador", "Valor", "Missao"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -212,12 +229,12 @@ public class BaseJanela extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(tabelaBase);
-        if (tabelaBase.getColumnModel().getColumnCount() > 0) {
-            tabelaBase.getColumnModel().getColumn(0).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(1).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(2).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(3).setResizable(false);
+        jScrollPane1.setViewportView(tabelaLancamentos);
+        if (tabelaLancamentos.getColumnModel().getColumnCount() > 0) {
+            tabelaLancamentos.getColumnModel().getColumn(0).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(1).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(2).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(3).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -226,7 +243,7 @@ public class BaseJanela extends javax.swing.JFrame {
         inputCodigo.setEditable(false);
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel2.setText("Nome:");
+        jLabel2.setText("Patrocinador:");
 
         cancelar.setBackground(new java.awt.Color(255, 0, 51));
         cancelar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -247,10 +264,10 @@ public class BaseJanela extends javax.swing.JFrame {
         });
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel3.setText("Pais:");
+        jLabel3.setText("Valor:");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel4.setText("Preço de construção:");
+        jLabel4.setText("Missão:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -263,29 +280,28 @@ public class BaseJanela extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel3))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inputPais, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(122, 122, 122)
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(inputPreco, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(182, 182, 182)
-                                .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(41, 41, 41)
-                                .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 103, Short.MAX_VALUE)))
+                        .addGap(182, 182, 182)
+                        .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(41, 41, 41)
+                        .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 184, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(inputPatrocinador, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputValor, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(111, 111, 111)
+                .addComponent(jLabel4)
+                .addGap(18, 18, 18)
+                .addComponent(cbMissoes, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -300,15 +316,15 @@ public class BaseJanela extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel4)
-                        .addComponent(inputPreco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cbMissoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputPatrocinador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(inputPais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -320,136 +336,167 @@ public class BaseJanela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-    BaseJA f = new BaseJA();
-    f.setCodBaseLancamento(0);
+        FinanciamentoJA s = new FinanciamentoJA();
+        s.setCodFinanciamento(0);
+        s.setPatrocinador("");
+        s.setValor(0);
+        s.setMissoesCodMissao(0);
 
-    listaBases.add(f);
-    carregarTabelaFoguetes();
+        listaFinanciamento.add(s);
+        carregarTabelaFinanciamentos();
 
-    int linha = listaBases.size() - 1;
-    if (linha >= 0) tabelaBase.setRowSelectionInterval(linha, linha);
+        int linha = listaFinanciamento.size() - 1;
+        if (linha >= 0) {
+            tabelaLancamentos.setRowSelectionInterval(linha, linha);
+        }
 
-    inputCodigo.setText("0");
-    inputNome.setText("");
-    inputPais.setText("");
-    inputPreco.setText("0");
+        inputCodigo.setText("0");
+        inputPatrocinador.setText("");
+        inputValor.setText("");
+        cbMissoes.setSelectedIndex(-1);
 
-    criando = true;
-    emEdicao = true;
-    trataEdicao(true);
+        criando = true;
+        emEdicao = true;
+        trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma Base para editar!");
-        return;
-    }
-    BaseJA f = listaBases.get(linha);
-    inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
-    inputNome.setText(f.getNomeBase());
-    inputPais.setText(String.valueOf(f.getPaisBase()));
-    inputPreco.setText(String.valueOf(f.getPrecoConstrucao()));
+        int linha = tabelaLancamentos.getSelectedRow();
+        if (linha < 0) {
+            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
+            return;
+        }
 
-    criando = false;
-    emEdicao = true;
-    trataEdicao(true);
+        FinanciamentoJA s = listaFinanciamento.get(linha);
+
+        inputCodigo.setText(String.valueOf(s.getCodFinanciamento()));;
+        inputPatrocinador.setText(s.getPatrocinador());
+        inputValor.setText(String.valueOf(s.getValor()));
+        
+        for (int i = 0; i < cbMissoes.getItemCount(); i++) {
+            Object obj = cbMissoes.getModel().getElementAt(i);
+            if (obj instanceof MissaoJA) {
+                MissaoJA missao = (MissaoJA) obj;
+                if (missao.getCodMissao() == s.getMissoesCodMissao()){
+                    cbMissoes.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+        
+        criando = false;
+        emEdicao = true;
+        trataEdicao(true);
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma BASE para deletar!");
-        return;
-    }
-    BaseJA f = listaBases.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Base " + f.getNomeBase() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int linha = tabelaLancamentos.getSelectedRow();
+        if (linha < 0) {
+            JOptionPane.showMessageDialog(this, "Selecione um Financiamento para remover.");
+            return;
+        }
 
-    boolean ok = baseDao.remover(f.getCodBaseLancamento());
-    if (ok) {
-        listaBases.remove(linha);
-        carregarTabelaFoguetes();
-    }
+        FinanciamentoJA s = listaFinanciamento.get(linha);
+
+        int resposta = JOptionPane.showConfirmDialog(this,
+                "Deseja realmente remover o Financiamento do patrocinador \"" + s.getPatrocinador()+ "\"?",
+                "Confirmação", JOptionPane.YES_NO_OPTION);
+
+        if (resposta == JOptionPane.YES_OPTION) {
+            FinanciamentoDAO dao = new FinanciamentoDAO();
+            if (dao.remover(s.getCodFinanciamento())) {
+                JOptionPane.showMessageDialog(this, "Financiamento removido com sucesso!");
+                listaFinanciamento.remove(s);
+                carregarTabelaFinanciamentos();
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao remover Financiamento.");
+            }
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
         // TODO add your handling code here:
-        carregarTabelaFoguetes();
+        carregarTabelaFinanciamentos();
     }//GEN-LAST:event_atualizarActionPerformed
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-     if (!emEdicao) return;
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione a linha para salvar!");
-        return;
-    }
+        if (!emEdicao) {
+            return;
+        }
 
-    if (!validaCampos()) return;
+        int linha = tabelaLancamentos.getSelectedRow();
+        if (linha < 0) {
+            JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
+            return;
+        }
 
-    BaseJA f = listaBases.get(linha);
+        if (!validaCampos()) {
+            return;
+        }
 
-    f.setNomeBase(inputNome.getText().trim());
-    f.setPaisBase(inputPais.getText().trim());
-    try {
-        f.setPrecoConstrucao(Double.parseDouble(inputPreco.getText().trim()));
+        FinanciamentoJA s = listaFinanciamento.get(linha);
+        
+        
+        s.setPatrocinador(inputPatrocinador.getText().trim());
+        
+        try {
+        s.setValor(Double.parseDouble(inputValor.getText().trim()));
     } catch (NumberFormatException ex) {
         JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
         return;
     }
 
-    boolean ok;
-    if (f.getCodBaseLancamento() == 0) {
-        ok = baseDao.inserir(f);
-        if (ok) {
-            inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
+        MissaoJA missaoSelecionada = (MissaoJA) cbMissoes.getSelectedItem();
+        if (missaoSelecionada == null) {
+            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o Lançamento pertence!");
+            cbMissoes.requestFocus();
+            return;
         }
-    } else {
-        ok = baseDao.alterar(f);
-    }
+        s.setMissoesCodMissao(missaoSelecionada.getCodMissao());
 
-    if (!ok) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar no banco.");
-        return;
-    }
+        FinanciamentoDAO dao = new FinanciamentoDAO();
+        boolean ok;
 
-    listaBases = baseDao.getLista();
-    carregarTabelaFoguetes();
-    for (int i = 0; i < listaBases.size(); i++) {
-        if (listaBases.get(i).getCodBaseLancamento() == f.getCodBaseLancamento()) {
-            tabelaBase.setRowSelectionInterval(i, i);
-            break;
+        if (s.getCodFinanciamento()== 0) {
+            ok = dao.inserir(s);
+            if (ok) {
+                inputCodigo.setText(String.valueOf(s.getCodFinanciamento()));
+            }
+        } else {
+            ok = dao.alterar(s);
         }
-    }
 
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
+        if (!ok) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar sensor no banco!");
+            return;
+        }
 
-    JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
+        listaFinanciamento = dao.getLista();
+        carregarTabelaFinanciamentos();
+
+        for (int i = 0; i < listaFinanciamento.size(); i++) {
+            if (listaFinanciamento.get(i).getCodFinanciamento() == s.getCodFinanciamento()) {
+                tabelaLancamentos.setRowSelectionInterval(i, i);
+                break;
+            }
+        }
+
+        emEdicao = false;
+        criando = false;
+        trataEdicao(false);
+
+        JOptionPane.showMessageDialog(this, "Sensor salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-    if (criando) {
-        for (int i = listaBases.size() - 1; i >= 0; i--) {
-            if (listaBases.get(i).getCodBaseLancamento() == 0) {
-                listaBases.remove(i);
-                break;
-            }
-        }
-        carregarTabelaFoguetes();
-    } else {
-        listaBases = baseDao.getLista();
-        carregarTabelaFoguetes();
-    }
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
+        emEdicao = false;
+        criando = false;
+        trataEdicao(false);
+        carregarTabelaFinanciamentos();
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -491,11 +538,11 @@ public class BaseJanela extends javax.swing.JFrame {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
+    private javax.swing.JComboBox<String> cbMissoes;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCodigo;
-    private javax.swing.JTextField inputNome;
-    private javax.swing.JTextField inputPais;
-    private javax.swing.JTextField inputPreco;
+    private javax.swing.JTextField inputPatrocinador;
+    private javax.swing.JTextField inputValor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -504,6 +551,6 @@ public class BaseJanela extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaBase;
+    private javax.swing.JTable tabelaLancamentos;
     // End of variables declaration//GEN-END:variables
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import Script.DestinoDAO;
 import Script.DestinoJA;
+import java.text.DecimalFormat;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -41,16 +43,18 @@ public class DestinoJanela extends javax.swing.JFrame {
         inputPressao.setEnabled(false);
         inputAceleracao.setEnabled(false);
         inputTipo.setEnabled(false);
+        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
     private void carregarTabelaDestinos() {
         DefaultTableModel modelo = (DefaultTableModel) tabelaDestino.getModel();
+        DecimalFormat df = new DecimalFormat("#,###");
         modelo.setRowCount(0);
         for (DestinoJA f : listaDestinos) {
             modelo.addRow(new Object[]{
                 f.getCodDestino(),
                 f.getNomeLocal(),
-                f.getDistancia(),
+                df.format(f.getDistancia()),
                 f.getPressao(),
                 f.getAceleracaoGravidade(),
                 f.getTipo(),
@@ -146,7 +150,7 @@ public class DestinoJanela extends javax.swing.JFrame {
         inputTipo = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Gerenciador de Foguetes");
+        setTitle("Gerenciador de Destinos");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
 
@@ -390,8 +394,10 @@ public class DestinoJanela extends javax.swing.JFrame {
     inputCodigo.setText(String.valueOf(f.getCodDestino()));
     inputNome.setText(f.getNomeLocal());
     inputPressao.setText(String.valueOf(f.getPressao()));
+    DecimalFormat df = new DecimalFormat("0");
+    inputDistancia.setText(df.format(f.getDistancia()));
     inputAceleracao.setText(String.valueOf(f.getAceleracaoGravidade()));
-    inputNome.setText(f.getTipo());
+    inputTipo.setText(f.getTipo());
 
     criando = false;
     emEdicao = true;
@@ -437,8 +443,8 @@ public class DestinoJanela extends javax.swing.JFrame {
     f.setNomeLocal(inputNome.getText().trim());
     f.setTipo(inputTipo.getText().trim());
     try {
-        f.setDistancia(Float.parseFloat(inputDistancia.getText().trim()));
-        f.setPressao(Double.parseDouble(inputDistancia.getText().trim()));
+        f.setDistancia(Float.parseFloat(inputDistancia.getText().replace(",", ".").trim()));
+        f.setPressao(Double.parseDouble(inputPressao.getText().trim()));
         f.setAceleracaoGravidade(Double.parseDouble(inputAceleracao.getText().trim()));
     } catch (NumberFormatException ex) {
         JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");

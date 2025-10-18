@@ -14,6 +14,7 @@ import Script.FuncionarioDAO;
 import Script.FuncionarioJA;
 import java.text.SimpleDateFormat;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 
 import javax.swing.JOptionPane;
 
@@ -51,6 +52,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         inputEmail.setEnabled(false);
         inputStatus.setEnabled(false);
         cbCargos.setEnabled(false);
+        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
     private void carregarTabelaFuncionario() {
@@ -198,7 +200,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         inputEmail = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Gerenciador de cargas");
+        setTitle("Gerenciador de Funcionarios");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
 
@@ -270,7 +272,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true, false, false, false, false, true, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -507,7 +509,18 @@ public class FuncionarioJanela extends javax.swing.JFrame {
     inputStatus.setText(String.valueOf(f.getStatus()));
     inputEmail.setText(f.getEmail());
     inputNascimento.setText(new SimpleDateFormat("dd/MM/yyyy").format(f.getDataNascimento()));
-
+    
+    for (int i = 0; i < cbCargos.getItemCount(); i++) {
+            Object obj = cbCargos.getModel().getElementAt(i);
+            if (obj instanceof CargoJA) {
+                CargoJA cargo = (CargoJA) obj;
+                if (cargo.getCodCargo() == f.getCargoCodCargo()) {
+                    cbCargos.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+    
     criando = false;
     emEdicao = true;
     trataEdicao(true);
@@ -515,23 +528,19 @@ public class FuncionarioJanela extends javax.swing.JFrame {
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaFuncionario.getSelectedRow();
+        int linha = tabelaFuncionario.getSelectedRow();
     if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um funcionário!");
+        JOptionPane.showMessageDialog(this, "Selecione uma Missao para deletar!");
         return;
     }
-
     FuncionarioJA f = listasFuncionario.get(linha);
-    if (FuncionarioDao.remover(f)) {
-        // remove da lista local
+    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Missao " + f.getNomeFuncionario() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
+    if (op != JOptionPane.YES_OPTION) return;
+
+    boolean ok = FuncionarioDao.remover(f.getCodFuncionario());
+    if (ok) {
         listasFuncionario.remove(linha);
-
-        DefaultTableModel modelo = (DefaultTableModel) tabelaFuncionario.getModel();
-        modelo.removeRow(linha);
-
-        JOptionPane.showMessageDialog(this, "Funcionário removido!");
-    } else {
-        JOptionPane.showMessageDialog(this, "Erro ao remover funcionário!");
+        carregarTabelaFuncionario();
     }
     }//GEN-LAST:event_removerActionPerformed
 
@@ -557,8 +566,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
         f = listasFuncionario.get(linha);
     }
 
-    // Validação básica
-    if (inputNome.getText().trim().isEmpty() || inputCpf.getText().trim().isEmpty() || cbCargos.getSelectedIndex() < 0) {
+    if (inputNome.getText().trim().isEmpty() || inputCpf.getText().trim().isEmpty() || inputSalario.getText().trim().isEmpty() || inputTelefone.getText().trim().isEmpty() || inputNascimento.getText().trim().isEmpty() || cbCargos.getSelectedIndex() < 0) {
         JOptionPane.showMessageDialog(this, "Preencha nome, CPF, Salario, Telefone, DataNascimento e selecione cargo!");
         return;
     }
@@ -568,6 +576,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
     f.setRg(inputRG.getText().trim());
     f.setTelefone(inputTelefone.getText().trim());
     f.setCep(inputCEP.getText().trim());
+    f.setEmail(inputEmail.getText().trim());
 
     try {
         f.setSalarioAtual(Double.parseDouble(inputSalario.getText().trim()));
@@ -578,6 +587,7 @@ public class FuncionarioJanela extends javax.swing.JFrame {
 
     try {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
         f.setDataNascimento(sdf.parse(inputNascimento.getText().trim()));
     } catch (Exception ex) {
         JOptionPane.showMessageDialog(this, "Data inválida! Use dd/MM/yyyy");

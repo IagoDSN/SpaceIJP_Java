@@ -8,10 +8,14 @@ package janelas;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-import Script.CargaDAO;
-import Script.CargaJA;
+import Script.LancamentosDAO;
+import Script.LancamentosJA;
 import Script.FogueteDao;
 import Script.FogueteJA;
+import Script.MissaoDAO;
+import Script.MissaoJA;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 
@@ -21,47 +25,50 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class CargaJanela extends javax.swing.JFrame {
+public class LancamentosJanela extends javax.swing.JFrame {
 
-    private CargaDAO CargaDao = new CargaDAO();
-    List<CargaJA> listasCargas = CargaDao.getLista();
+    private LancamentosDAO SensorDao = new LancamentosDAO();
+    List<LancamentosJA> listaLancamentos = SensorDao.getLista();
     private FogueteDao fogueteDao = new FogueteDao();
+    private MissaoDAO missaoDao = new MissaoDAO();
 
     private boolean emEdicao = false;
     private boolean criando = false;
 
-    public CargaJanela() {
+    public LancamentosJanela() {
         initComponents();
     }
 
-    CargaJanela(Main aThis, boolean b) {
+    LancamentosJanela(Main aThis, boolean b) {
         initComponents();
-        carregarTabelaSensores();
+        carregarTabelaLancamentos();
         configurarComboFoguetes();
+        configurarComboMissoes();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
-        inputTipo.setEnabled(false);
-        inQuantidade.setEnabled(false);
-        inputPeso.setEnabled(false);
-        inputDescricao.setEnabled(false);
+        inputData.setEnabled(false);
+        inputResultado.setEnabled(false);
         cbFoguetes.setEnabled(false);
+        cbMissoes.setEnabled(false);
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-    private void carregarTabelaSensores() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaCarga.getModel();
-        modelo.setRowCount(0);
-        for (CargaJA c : listasCargas) {
-            modelo.addRow(new Object[]{
-                c.getCodCarga(),
-                c.getTipo(),
-                c.getQuantidade(),
-                c.getPeso(),
-                c.getDescricao(),
-                c.getFogueteNome()
-            });
-        }
+    private void carregarTabelaLancamentos() {
+        DefaultTableModel modelo = (DefaultTableModel) tabelaLancamentos.getModel();
+    modelo.setRowCount(0);
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+    for (LancamentosJA l : listaLancamentos) {
+        String dataStr = l.getDataLancamento() != null ? sdf.format(l.getDataLancamento()) : "";
+        modelo.addRow(new Object[]{
+            l.getCodLancamentos(),
+            dataStr,
+            l.getResultado(),
+            l.getFogueteNome(),
+            l.getMissaoNome()
+        });
+    }
     }
 
     private void configurarComboFoguetes() {
@@ -74,12 +81,21 @@ public class CargaJanela extends javax.swing.JFrame {
         cbFoguetes.setModel(modelo);
         cbFoguetes.setSelectedIndex(-1);
     }
+    private void configurarComboMissoes() {
+        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
+        MissaoDAO fdao = new MissaoDAO();
+        List<MissaoJA> missoes = fdao.getLista();
+        for (MissaoJA f : missoes) {
+            modelo.addElement(f);
+        }
+        cbMissoes.setModel(modelo);
+        cbMissoes.setSelectedIndex(-1);
+    }
 
     private void trataEdicao(boolean status) {
-        inputTipo.setEnabled(status);
-        inQuantidade.setEnabled(status);
-        inputPeso.setEnabled(status);
-        inputDescricao.setEnabled(status);
+        inputData.setEnabled(status);
+        inputResultado.setEnabled(status);
+        cbMissoes.setEnabled(status);
         cbFoguetes.setEnabled(status);
 
         salvar.setEnabled(status);
@@ -91,29 +107,24 @@ public class CargaJanela extends javax.swing.JFrame {
     }
 
     public boolean validaCampos() {
-        if (inputTipo.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o tipo de Carga");
-            inputTipo.requestFocus();
+        if (inputData.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe a data de Lançamento");
+            inputData.requestFocus();
             return false;
         }
-        if (inQuantidade.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe a quantidade de Cargas");
-            inQuantidade.requestFocus();
-            return false;
-        }
-        if (inputPeso.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o peso da Carga");
-            inputPeso.requestFocus();
-            return false;
-        }
-        if (inputDescricao.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe a descrição da Carga");
-            inputDescricao.requestFocus();
+        if (inputResultado.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o resultado do Lançamento");
+            inputResultado.requestFocus();
             return false;
         }
         if (cbFoguetes.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual a carga pertence");
+            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual o lançamento pertence");
             cbFoguetes.requestFocus();
+            return false;
+        }
+        if (cbMissoes.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o lançamento pertence");
+            cbMissoes.requestFocus();
             return false;
         }
         return true;
@@ -123,8 +134,8 @@ public class CargaJanela extends javax.swing.JFrame {
         int codigo = 1;
         while (true) {
             boolean existe = false;
-            for (CargaJA c : listasCargas) {
-                if (c.getCodCarga() == codigo) {
+            for (LancamentosJA s : listaLancamentos) {
+                if (s.getCodLancamentos()== codigo) {
                     existe = true;
                     break;
                 }
@@ -151,24 +162,22 @@ public class CargaJanela extends javax.swing.JFrame {
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaCarga = new javax.swing.JTable();
+        tabelaLancamentos = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        inputTipo = new javax.swing.JTextField();
+        inputData = new javax.swing.JTextField();
         cancelar = new javax.swing.JButton();
         salvar = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        inputPeso = new javax.swing.JTextField();
+        inputResultado = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        inputDescricao = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         cbFoguetes = new javax.swing.JComboBox<>();
-        jLabel6 = new javax.swing.JLabel();
-        inQuantidade = new javax.swing.JTextField();
+        cbMissoes = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Gerenciador de cargas");
+        setTitle("Gerenciador de Lancamentos");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
 
@@ -217,7 +226,7 @@ public class CargaJanela extends javax.swing.JFrame {
                 .addComponent(remover, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(atualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -231,30 +240,29 @@ public class CargaJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaCarga.setModel(new javax.swing.table.DefaultTableModel(
+        tabelaLancamentos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Codigo", "tipo", "Quantidade", "Peso", "Descrição", "foguete"
+                "Codigo", "Data", "Resultado", "Foguete", "Missao"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(tabelaCarga);
-        if (tabelaCarga.getColumnModel().getColumnCount() > 0) {
-            tabelaCarga.getColumnModel().getColumn(0).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(1).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(2).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(3).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(4).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(5).setResizable(false);
+        jScrollPane1.setViewportView(tabelaLancamentos);
+        if (tabelaLancamentos.getColumnModel().getColumnCount() > 0) {
+            tabelaLancamentos.getColumnModel().getColumn(0).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(1).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(2).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(3).setResizable(false);
+            tabelaLancamentos.getColumnModel().getColumn(4).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -263,7 +271,7 @@ public class CargaJanela extends javax.swing.JFrame {
         inputCodigo.setEditable(false);
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel2.setText("Tipo:");
+        jLabel2.setText("Data:");
 
         cancelar.setBackground(new java.awt.Color(255, 0, 51));
         cancelar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -284,22 +292,13 @@ public class CargaJanela extends javax.swing.JFrame {
         });
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel3.setText("Peso:");
+        jLabel3.setText("Resultado:");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel4.setText("Descrição:");
+        jLabel4.setText("Missão:");
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel5.setText("Foguete:");
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel6.setText("Quantidade:");
-
-        inQuantidade.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inQuantidadeActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -312,69 +311,62 @@ public class CargaJanela extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel6))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(inputTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(122, 122, 122)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel4)
-                                            .addComponent(jLabel5))
-                                        .addGap(32, 32, 32)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(inputDescricao, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
-                                            .addComponent(cbFoguetes, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
-                                        .addComponent(inputPeso, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(182, 182, 182)
-                                .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(41, 41, 41)
-                                .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 129, Short.MAX_VALUE)))
+                        .addGap(182, 182, 182)
+                        .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(41, 41, 41)
+                        .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 184, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(inputData, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputResultado, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(121, 121, 121)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel4))
+                .addGap(33, 33, 33)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(cbFoguetes, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbMissoes, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(44, 44, 44)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel3)
-                                .addComponent(inputPeso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(33, 33, 33)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(inputTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel4)
-                            .addComponent(inputDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(33, 33, 33)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(inQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5)
-                            .addComponent(cbFoguetes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                                .addComponent(jLabel5))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbFoguetes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(33, 33, 33)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(inputData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4)
+                    .addComponent(cbMissoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(29, 29, 29)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(inputResultado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -385,28 +377,26 @@ public class CargaJanela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        CargaJA c = new CargaJA();
-        c.setCodCarga(0);
-        c.setTipo("");
-        c.setQuantidade(0);
-        c.setPeso(0);
-        c.setDescricao("");
-        c.setFogueteCodFoguete(0);
+        LancamentosJA s = new LancamentosJA();
+        s.setCodLancamentos(0);
+        s.setDataLancamento(null);
+        s.setResultado("");
+        s.setFogueteCodFoguete(0);
+        s.setMissoesCodMissao(0);
 
-        listasCargas.add(c);
-        carregarTabelaSensores();
+        listaLancamentos.add(s);
+        carregarTabelaLancamentos();
 
-        int linha = listasCargas.size() - 1;
+        int linha = listaLancamentos.size() - 1;
         if (linha >= 0) {
-            tabelaCarga.setRowSelectionInterval(linha, linha);
+            tabelaLancamentos.setRowSelectionInterval(linha, linha);
         }
 
         inputCodigo.setText("0");
-        inputTipo.setText("");
-        inQuantidade.setText("");
-        inputPeso.setText("");
-        inputDescricao.setText("");
+        inputData.setText("");
+        inputResultado.setText("");
         cbFoguetes.setSelectedIndex(-1);
+        cbMissoes.setSelectedIndex(-1);
 
         criando = true;
         emEdicao = true;
@@ -415,30 +405,39 @@ public class CargaJanela extends javax.swing.JFrame {
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaCarga.getSelectedRow();
+        int linha = tabelaLancamentos.getSelectedRow();
         if (linha < 0) {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
             return;
         }
 
-        CargaJA c = listasCargas.get(linha);
-        inputCodigo.setText(String.valueOf(c.getCodCarga()));
-        inputTipo.setText(c.getTipo());
-        inQuantidade.setText(String.valueOf(c.getQuantidade()));
-        inputDescricao.setText(c.getDescricao());
-        inputPeso.setText(String.valueOf(c.getPeso()));
+        LancamentosJA s = listaLancamentos.get(linha);
 
+        inputCodigo.setText(String.valueOf(s.getCodLancamentos()));
+        inputData.setText(new SimpleDateFormat("dd/MM/yyyy").format(s.getDataLancamento()));
+        inputResultado.setText(s.getResultado());
+        
         for (int i = 0; i < cbFoguetes.getItemCount(); i++) {
             Object obj = cbFoguetes.getModel().getElementAt(i);
             if (obj instanceof FogueteJA) {
                 FogueteJA foguete = (FogueteJA) obj;
-                if (foguete.getCodFoguete() == c.getFogueteCodFoguete()) {
+                if (foguete.getCodFoguete() == s.getFogueteCodFoguete()) {
                     cbFoguetes.setSelectedIndex(i);
                     break;
                 }
             }
         }
-
+        for (int i = 0; i < cbMissoes.getItemCount(); i++) {
+            Object obj = cbMissoes.getModel().getElementAt(i);
+            if (obj instanceof MissaoJA) {
+                MissaoJA missao = (MissaoJA) obj;
+                if (missao.getCodMissao() == s.getMissoesCodMissao()){
+                    cbMissoes.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+        
         criando = false;
         emEdicao = true;
         trataEdicao(true);
@@ -446,33 +445,33 @@ public class CargaJanela extends javax.swing.JFrame {
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaCarga.getSelectedRow();
+        int linha = tabelaLancamentos.getSelectedRow();
         if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma carga para remover.");
+            JOptionPane.showMessageDialog(this, "Selecione um Lançamento para remover.");
             return;
         }
 
-        CargaJA c = listasCargas.get(linha);
+        LancamentosJA s = listaLancamentos.get(linha);
 
         int resposta = JOptionPane.showConfirmDialog(this,
-                "Deseja realmente remover a Carga \"" + c.getTipo() + "\"?",
+                "Deseja realmente remover o Lançamento\"" + s.getCodLancamentos()+ "\"?",
                 "Confirmação", JOptionPane.YES_NO_OPTION);
 
         if (resposta == JOptionPane.YES_OPTION) {
-            CargaDAO dao = new CargaDAO();
-            if (dao.remover(c.getCodCarga())) {
-                JOptionPane.showMessageDialog(this, "Carga removida com sucesso!");
-                listasCargas.remove(c);
-                carregarTabelaSensores();
+            LancamentosDAO dao = new LancamentosDAO();
+            if (dao.remover(s.getCodLancamentos())) {
+                JOptionPane.showMessageDialog(this, "Lançamento removido com sucesso!");
+                listaLancamentos.remove(s);
+                carregarTabelaLancamentos();
             } else {
-                JOptionPane.showMessageDialog(this, "Erro ao remover Carga.");
+                JOptionPane.showMessageDialog(this, "Erro ao remover sensor.");
             }
         }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
         // TODO add your handling code here:
-        carregarTabelaSensores();
+        carregarTabelaLancamentos();
     }//GEN-LAST:event_atualizarActionPerformed
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
@@ -481,8 +480,8 @@ public class CargaJanela extends javax.swing.JFrame {
             return;
         }
 
-        int linha = tabelaCarga.getSelectedRow();
-        if (!criando && linha < 0) {
+        int linha = tabelaLancamentos.getSelectedRow();
+        if (linha < 0) {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
             return;
         }
@@ -491,73 +490,67 @@ public class CargaJanela extends javax.swing.JFrame {
             return;
         }
 
-        CargaJA c;
-        if (criando) {
-            c = listasCargas.get(listasCargas.size() - 1);
-        } else {
-            c = listasCargas.get(linha);
-        }
-
-        c.setTipo(inputTipo.getText().trim());
+        LancamentosJA s = listaLancamentos.get(linha);
+        
         try {
-            c.setPeso(Double.parseDouble(inputPeso.getText().trim()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Peso inválido!");
-            return;
-        }
-        try {
-            c.setQuantidade(Integer.parseInt(inQuantidade.getText().trim()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Quantidade inválida!");
-            return;
-        }
-        c.setDescricao(inputDescricao.getText().trim());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+        s.setDataLancamento(sdf.parse(inputData.getText().trim()));
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Data inválida! Use dd/MM/yyyy");
+        return;
+    }        
+        s.setResultado(inputResultado.getText().trim());
 
         FogueteJA fogueteSelecionado = (FogueteJA) cbFoguetes.getSelectedItem();
         if (fogueteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual a Carga pertence!");
+            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual o Lançamento pertence!");
             cbFoguetes.requestFocus();
             return;
         }
-        c.setFogueteCodFoguete(fogueteSelecionado.getCodFoguete());
+        s.setFogueteCodFoguete(fogueteSelecionado.getCodFoguete());
+        
+        
+        MissaoJA missaoSelecionada = (MissaoJA) cbMissoes.getSelectedItem();
+        if (missaoSelecionada == null) {
+            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o Lançamento pertence!");
+            cbMissoes.requestFocus();
+            return;
+        }
+        s.setMissoesCodMissao(missaoSelecionada.getCodMissao());
 
-        CargaDAO dao = new CargaDAO();
+        LancamentosDAO dao = new LancamentosDAO();
         boolean ok;
 
-        if (c.getCodCarga() == 0) {
-            ok = dao.inserir(c);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao cadastrar Carga!");
-                return;
+        if (s.getCodLancamentos() == 0) {
+            ok = dao.inserir(s);
+            if (ok) {
+                inputCodigo.setText(String.valueOf(s.getCodLancamentos()));
             }
-            inputCodigo.setText(String.valueOf(c.getCodCarga()));
-        } else { 
-            ok = dao.alterar(c);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao atualizar Carga!");
-                return;
-            }
+        } else {
+            ok = dao.alterar(s);
         }
 
-        listasCargas = dao.getLista();
-        carregarTabelaSensores();
+        if (!ok) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar sensor no banco!");
+            return;
+        }
 
-        int rowToSelect = -1;
-        for (int i = 0; i < listasCargas.size(); i++) {
-            if (listasCargas.get(i).getCodCarga() == c.getCodCarga()) {
-                rowToSelect = i;
+        listaLancamentos = dao.getLista();
+        carregarTabelaLancamentos();
+
+        for (int i = 0; i < listaLancamentos.size(); i++) {
+            if (listaLancamentos.get(i).getCodLancamentos() == s.getCodLancamentos()) {
+                tabelaLancamentos.setRowSelectionInterval(i, i);
                 break;
             }
-        }
-        if (rowToSelect >= 0 && rowToSelect < tabelaCarga.getRowCount()) {
-            tabelaCarga.setRowSelectionInterval(rowToSelect, rowToSelect);
         }
 
         emEdicao = false;
         criando = false;
         trataEdicao(false);
 
-        JOptionPane.showMessageDialog(this, "Carga salva com sucesso!");
+        JOptionPane.showMessageDialog(this, "Sensor salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
@@ -565,12 +558,8 @@ public class CargaJanela extends javax.swing.JFrame {
         emEdicao = false;
         criando = false;
         trataEdicao(false);
-        carregarTabelaSensores();
+        carregarTabelaLancamentos();
     }//GEN-LAST:event_cancelarActionPerformed
-
-    private void inQuantidadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inQuantidadeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inQuantidadeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -612,22 +601,20 @@ public class CargaJanela extends javax.swing.JFrame {
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
     private javax.swing.JComboBox<String> cbFoguetes;
+    private javax.swing.JComboBox<String> cbMissoes;
     private javax.swing.JButton editar;
-    private javax.swing.JTextField inQuantidade;
     private javax.swing.JTextField inputCodigo;
-    private javax.swing.JTextField inputDescricao;
-    private javax.swing.JTextField inputPeso;
-    private javax.swing.JTextField inputTipo;
+    private javax.swing.JTextField inputData;
+    private javax.swing.JTextField inputResultado;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaCarga;
+    private javax.swing.JTable tabelaLancamentos;
     // End of variables declaration//GEN-END:variables
 }

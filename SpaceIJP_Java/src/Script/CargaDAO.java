@@ -17,22 +17,23 @@ import javax.swing.JOptionPane;
 public class CargaDAO {
 
     public boolean inserir(CargaJA c) {
-        String sql = "INSERT INTO carga (tipo, peso, quant, descricao, Foguete_codFoguete) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO carga (tipo, quant, peso, descricao, Foguete_codFoguete) VALUES (?, ?, ?, ?, ?)";
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setString(1, c.getTipo());
             pst.setInt(2, c.getQuantidade());
             pst.setDouble(3, c.getPeso());
             pst.setString(4, c.getDescricao());
             pst.setInt(5, c.getFogueteCodFoguete());
 
-            if (pst.executeUpdate() > 0) {
-                ResultSet rs = pst.getGeneratedKeys();
-                if (rs.next()) {
-                    c.setCodCarga(rs.getInt(1));
-                }
-                return true;
+            int affected = pst.executeUpdate();
+
+            ResultSet rs = pst.getGeneratedKeys();
+            if (rs.next()) {
+                c.setCodCarga(rs.getInt(1));
             }
+
+            return affected > 0;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erro ao inserir carga: " + e.getMessage());
         }

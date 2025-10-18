@@ -68,17 +68,18 @@ public class FuncionarioDAO {
         return false;
     }
 
-    public boolean remover(FuncionarioJA f) {
-        String sql = "DELETE FROM funcionario WHERE codFuncionario=?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, f.getCodFuncionario());
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao remover funcionário: " + e.getMessage());
-        }
-        return true;
+    public boolean remover(int codFuncionario) {
+    String sql = "DELETE FROM funcionario WHERE codFuncionario=?";
+    try {
+        PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+        pst.setInt(1, codFuncionario);
+        return pst.executeUpdate() > 0;
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Erro ao remover funcionário: " + e.getMessage());
     }
+    return false;
+}
+
 
     public List<FuncionarioJA> getLista() {
         List<FuncionarioJA> lista = new ArrayList<>();

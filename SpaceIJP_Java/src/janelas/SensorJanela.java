@@ -13,6 +13,7 @@ import Script.SensoresJA;
 import Script.FogueteDao;
 import Script.FogueteJA;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 
 import javax.swing.JOptionPane;
 
@@ -47,6 +48,7 @@ public class SensorJanela extends javax.swing.JFrame {
         inputUnidade.setEnabled(false);
         inputPosition.setEnabled(false);
         cbFoguetes.setEnabled(false);
+        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
     private void carregarTabelaSensores() {
@@ -397,7 +399,18 @@ public class SensorJanela extends javax.swing.JFrame {
         inputTipo.setText(s.getTipo());
         inputUnidade.setText(s.getUnidade());
         inputPosition.setText(s.getPosition());
-
+        
+        for (int i = 0; i < cbFoguetes.getItemCount(); i++) {
+            Object obj = cbFoguetes.getModel().getElementAt(i);
+            if (obj instanceof FogueteJA) {
+                FogueteJA foguete = (FogueteJA) obj;
+                if (foguete.getCodFoguete() == s.getFogueteCodFoguete()) {
+                    cbFoguetes.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+        
         criando = false;
         emEdicao = true;
         trataEdicao(true);
