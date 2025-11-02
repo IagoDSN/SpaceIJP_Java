@@ -5,9 +5,19 @@
  */
 package janelas;
 
+import Script.UsuarioDAO;
+import Script.UsuarioJA;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import java.math.BigDecimal;
+import javax.swing.JFrame;
+import utils.BackgroundPanel;
 
 /**
  *
@@ -15,13 +25,61 @@ import javax.swing.JOptionPane;
  */
 public class Main extends javax.swing.JFrame {
 
+    private UsuarioDAO usuarioDao = new UsuarioDAO();
+    private UsuarioJA usuario;
+
     /**
      * Creates new form Main
      */
-    
     public Main() {
+        fundo = new BackgroundPanel("/imgs/estrelado.png");
+        setContentPane(fundo);
+
         initComponents();
-        setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
+        setIconImage(new ImageIcon("/imgs/iconeFoguete.png").getImage());
+        verifica();
+    }
+
+    private void verifica() {
+        usuario = usuarioDao.buscarPorId(1);
+        if (usuario != null) {
+            int valor = usuario.getPrimeiraVez();
+
+            if (valor == 0) {
+                this.setSize(1, 1);
+                this.setState(JFrame.ICONIFIED);
+
+                PrimeiraVezFrame telaBoasVindas = new PrimeiraVezFrame(this, usuario, usuarioDao);
+                telaBoasVindas.setLocationRelativeTo(null);
+                telaBoasVindas.setVisible(true);
+
+                telaBoasVindas.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        usuario.setPrimeiraVez(1);
+                        usuarioDao.atualizarUsuario(usuario);
+
+                        setSize(700, 500);
+                        setLocationRelativeTo(null);
+                        setState(JFrame.NORMAL);
+                        setVisible(true);
+                    }
+                });
+            } else {
+                this.setVisible(true);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Usuário não encontrado! Criando novo...");
+            UsuarioJA novoUsuario = new UsuarioJA();
+            novoUsuario.setNomeUsuario("0");
+            novoUsuario.setDinheiro(BigDecimal.valueOf(200000.00));
+            novoUsuario.setPrimeiraVez(0);
+
+            usuarioDao.inserirUsuario(novoUsuario);
+
+            JOptionPane.showMessageDialog(null, "Novo usuário criado. O aplicativo será fechado.");
+            System.exit(0);
+        }
     }
 
     /**
@@ -35,10 +93,11 @@ public class Main extends javax.swing.JFrame {
 
         jMenuItem1 = new javax.swing.JMenuItem();
         jToggleButton1 = new javax.swing.JToggleButton();
-        jPanel1 = new javax.swing.JPanel();
+        fundo = new javax.swing.JPanel();
         lancar = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        lojinha = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         Foguetes = new javax.swing.JMenu();
         FoguetesGerenciar = new javax.swing.JMenuItem();
@@ -68,7 +127,8 @@ public class Main extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.white);
 
-        jPanel1.setBackground(new java.awt.Color(30, 58, 95));
+        fundo.setBackground(new java.awt.Color(30, 58, 95));
+        fundo.setOpaque(false);
 
         lancar.setBackground(new java.awt.Color(175, 203, 255));
         lancar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -93,28 +153,40 @@ public class Main extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("SpaceIJP");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        lojinha.setBackground(new java.awt.Color(175, 203, 255));
+        lojinha.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        lojinha.setText("Loja");
+        lojinha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lojinhaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout fundoLayout = new javax.swing.GroupLayout(fundo);
+        fundo.setLayout(fundoLayout);
+        fundoLayout.setHorizontalGroup(
+            fundoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(fundoLayout.createSequentialGroup()
                 .addGap(245, 245, 245)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(fundoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lojinha, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lancar, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(229, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        fundoLayout.setVerticalGroup(
+            fundoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fundoLayout.createSequentialGroup()
                 .addGap(32, 32, 32)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(57, 57, 57)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(43, 43, 43)
+                .addGap(53, 53, 53)
                 .addComponent(lancar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(140, Short.MAX_VALUE))
+                .addGap(41, 41, 41)
+                .addComponent(lojinha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         jMenuBar1.setBackground(new java.awt.Color(149, 156, 182));
@@ -237,11 +309,11 @@ public class Main extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(fundo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(fundo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -249,19 +321,19 @@ public class Main extends javax.swing.JFrame {
 
     private void cargasGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargasGerenciarActionPerformed
         // TODO add your handling code here:
-        CargaJanela form = new CargaJanela(this,true);
+        CargaJanela form = new CargaJanela(this, true);
         form.setLocationRelativeTo(null); //centro na tela
         form.setResizable(false); //retira o botao maximizar
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_cargasGerenciarActionPerformed
 
     private void FoguetesGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FoguetesGerenciarActionPerformed
         // TODO add your handling code here:
-        FogueteJanela form = new FogueteJanela(this,true);
+        FogueteJanela form = new FogueteJanela(this, true);
         form.setLocationRelativeTo(null); //centro na tela
         form.setResizable(false); //retira o botao maximizar
- 
+
         form.setVisible(true); //visualizas o formulario
     }//GEN-LAST:event_FoguetesGerenciarActionPerformed
 
@@ -272,46 +344,46 @@ public class Main extends javax.swing.JFrame {
 
     private void sensoresGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sensoresGerenciarActionPerformed
         // TODO add your handling code here:
-        SensorJanela form = new SensorJanela(this,true);
+        SensorJanela form = new SensorJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_sensoresGerenciarActionPerformed
 
     private void GerenciaCargosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciaCargosActionPerformed
         // TODO add your handling code here:
-        CargoJanela form = new CargoJanela(this,true);
+        CargoJanela form = new CargoJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_GerenciaCargosActionPerformed
 
     private void GerenciaFuncionariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciaFuncionariosActionPerformed
         // TODO add your handling code here:
-        FuncionarioJanela form = new FuncionarioJanela(this,true);
+        FuncionarioJanela form = new FuncionarioJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_GerenciaFuncionariosActionPerformed
 
     private void lancarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lancarActionPerformed
         // TODO add your handling code here:
-        SimuladorJanela form = new SimuladorJanela(this,true);
+        SimuladorJanela form = new SimuladorJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_lancarActionPerformed
 
     private void BasesGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BasesGerenciarActionPerformed
         // TODO add your handling code here:
-        BaseJanela form = new BaseJanela(this,true);
+        BaseJanela form = new BaseJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_BasesGerenciarActionPerformed
 
@@ -321,39 +393,48 @@ public class Main extends javax.swing.JFrame {
 
     private void DestinosGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DestinosGerenciarActionPerformed
         // TODO add your handling code here:
-        DestinoJanela form = new DestinoJanela(this,true);
+        DestinoJanela form = new DestinoJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_DestinosGerenciarActionPerformed
 
     private void MissaoGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MissaoGerenciarActionPerformed
         // TODO add your handling code here:
-        MissaoJanela form = new MissaoJanela(this,true);
+        MissaoJanela form = new MissaoJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_MissaoGerenciarActionPerformed
 
     private void LancamentosGerenciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LancamentosGerenciarActionPerformed
         // TODO add your handling code here:
-        LancamentosJanela form = new LancamentosJanela(this,true);
+        LancamentosJanela form = new LancamentosJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_LancamentosGerenciarActionPerformed
 
     private void GerenciarFinanciamentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerenciarFinanciamentosActionPerformed
         // TODO add your handling code here:
-        FinanciamentosJanela form = new FinanciamentosJanela(this,true);
+        FinanciamentosJanela form = new FinanciamentosJanela(this, true);
         form.setLocationRelativeTo(null);
         form.setResizable(false);
- 
+
         form.setVisible(true);
     }//GEN-LAST:event_GerenciarFinanciamentosActionPerformed
+
+    private void lojinhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lojinhaActionPerformed
+        // TODO add your handling code here:
+        JanelaLoja form = new JanelaLoja(this, true);
+        form.setLocationRelativeTo(null);
+        form.setResizable(false);
+
+        form.setVisible(true);
+    }//GEN-LAST:event_lojinhaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -364,7 +445,7 @@ public class Main extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -408,15 +489,16 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenuItem abastecer;
     private javax.swing.JMenu base;
     private javax.swing.JMenuItem cargasGerenciar;
+    private javax.swing.JPanel fundo;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JButton lancar;
+    private javax.swing.JButton lojinha;
     private javax.swing.JMenuItem sensoresGerenciar;
     private javax.swing.JMenu sobre;
     // End of variables declaration//GEN-END:variables

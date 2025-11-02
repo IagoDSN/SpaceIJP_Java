@@ -34,7 +34,7 @@ public class FogueteJanela extends javax.swing.JFrame {
     FogueteJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaFoguetes();
-         salvar.setEnabled(false);
+        salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
         inputNome.setEnabled(false);
