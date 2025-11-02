@@ -51,7 +51,7 @@ O script `BD.sql` cria as tabelas necessárias, incluindo:
 
 ### 📥 Importar o Banco
 1. Abra o **MySQL Workbench** ou **phpMyAdmin**  
-2. Crie um banco com o nome `spaceij`  
+2. Crie um banco com o nome `spaceijp`  
 3. Execute o script `BD.sql` na base  
 4. Verifique as tabelas criadas corretamente  
 
