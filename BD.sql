@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
--- Versão do servidor:           8.0.42 - MySQL Community Server - GPL
+-- Versão do servidor:           8.2.0 - MySQL Community Server - GPL
 -- OS do Servidor:               Win64
--- HeidiSQL Versão:              12.10.0.7000
+-- HeidiSQL Versão:              12.6.0.6765
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -28,11 +28,9 @@ CREATE TABLE IF NOT EXISTS `baselancamento` (
   `paisbase` varchar(150) NOT NULL,
   `precoConstrucao` decimal(12,2) NOT NULL,
   PRIMARY KEY (`codbaseLancamento`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.baselancamento: ~0 rows (aproximadamente)
-INSERT INTO `baselancamento` (`codbaseLancamento`, `nomebase`, `paisbase`, `precoConstrucao`) VALUES
-	(2, 'João Henrrique', 'Brasil', 3000000.00);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.carga
 DROP TABLE IF EXISTS `carga`;
@@ -48,10 +46,7 @@ CREATE TABLE IF NOT EXISTS `carga` (
   CONSTRAINT `fk_carga_Foguete1` FOREIGN KEY (`Foguete_codFoguete`) REFERENCES `foguete` (`codFoguete`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.carga: ~2 rows (aproximadamente)
-INSERT INTO `carga` (`codcarga`, `tipo`, `quant`, `peso`, `descricao`, `Foguete_codFoguete`) VALUES
-	(2, 'Robos', 5, 50.0, 'Robos colonizadores', 1),
-	(3, 'caixotes', 4, 10.0, 'entrega para martim', 1);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.cargo
 DROP TABLE IF EXISTS `cargo`;
@@ -62,10 +57,7 @@ CREATE TABLE IF NOT EXISTS `cargo` (
   PRIMARY KEY (`codcargo`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.cargo: ~1 rows (aproximadamente)
-INSERT INTO `cargo` (`codcargo`, `nomeCargo`, `salarioInicial`) VALUES
-	(1, 'Gerente', '10000'),
-	(2, 'Cientista', '5000');
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.destino
 DROP TABLE IF EXISTS `destino`;
@@ -79,9 +71,7 @@ CREATE TABLE IF NOT EXISTS `destino` (
   PRIMARY KEY (`codDestino`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.destino: ~1 rows (aproximadamente)
-INSERT INTO `destino` (`codDestino`, `nomeLocal`, `distancia`, `pressao`, `aceleracaoGravidade`, `tipo`) VALUES
-	(1, 'Marte', 54600000, 0.006, 3.720, 'Rochoso');
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.financiamento
 DROP TABLE IF EXISTS `financiamento`;
@@ -95,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `financiamento` (
   CONSTRAINT `fk_Financiamento_Missoes1` FOREIGN KEY (`Missoes_codMissao`) REFERENCES `missoes` (`codMissao`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.financiamento: ~0 rows (aproximadamente)
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.foguete
 DROP TABLE IF EXISTS `foguete`;
@@ -108,9 +98,7 @@ CREATE TABLE IF NOT EXISTS `foguete` (
   PRIMARY KEY (`codFoguete`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.foguete: ~0 rows (aproximadamente)
-INSERT INTO `foguete` (`codFoguete`, `nomeFoguete`, `maximoCombustivel`, `velocidade`, `status`) VALUES
-	(1, 'Aguia', 5000, 80000.00, 0);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.funcionario
 DROP TABLE IF EXISTS `funcionario`;
@@ -131,9 +119,7 @@ CREATE TABLE IF NOT EXISTS `funcionario` (
   CONSTRAINT `fk_Funcionario_cargo` FOREIGN KEY (`cargo_codcargo`) REFERENCES `cargo` (`codcargo`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.funcionario: ~1 rows (aproximadamente)
-INSERT INTO `funcionario` (`codFuncionario`, `nomeFuncionario`, `cpf`, `salarioAtual`, `rg`, `telefone`, `cep`, `dataNascimento`, `status`, `cargo_codcargo`, `email`) VALUES
-	(1, 'Pedro ', '52954222209', 2.00, '10-100', '99999-91', '3776-0000', '1946-08-09', 1, 1, NULL);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.lancamentos
 DROP TABLE IF EXISTS `lancamentos`;
@@ -148,18 +134,26 @@ CREATE TABLE IF NOT EXISTS `lancamentos` (
   KEY `fk_Lancamentos_Missoes1_idx` (`Missoes_codMissao`),
   CONSTRAINT `fk_Lancamentos_Foguete1` FOREIGN KEY (`Foguete_codFoguete`) REFERENCES `foguete` (`codFoguete`),
   CONSTRAINT `fk_Lancamentos_Missoes1` FOREIGN KEY (`Missoes_codMissao`) REFERENCES `missoes` (`codMissao`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.lancamentos: ~0 rows (aproximadamente)
-INSERT INTO `lancamentos` (`codLancamentos`, `dataLancamento`, `resultado`, `Foguete_codFoguete`, `Missoes_codMissao`) VALUES
-	(1, '2025-09-30', '1', 1, 1);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para tabela space_ijp.missoes
-missoes
+DROP TABLE IF EXISTS `missoes`;
+CREATE TABLE IF NOT EXISTS `missoes` (
+  `codMissao` int NOT NULL AUTO_INCREMENT,
+  `nomeMissao` varchar(100) NOT NULL,
+  `objetivoMissao` mediumtext NOT NULL,
+  `dataInicio` date DEFAULT NULL,
+  `dataFim` date DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `Destino_codDestino` int NOT NULL,
+  PRIMARY KEY (`codMissao`,`Destino_codDestino`),
+  KEY `fk_Missoes_Destino1_idx` (`Destino_codDestino`),
+  CONSTRAINT `fk_Missoes_Destino1` FOREIGN KEY (`Destino_codDestino`) REFERENCES `destino` (`codDestino`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.missoes: ~0 rows (aproximadamente)
-INSERT INTO `missoes` (`codMissao`, `nomeMissao`, `objetivoMissao`, `dataInicio`, `dataFim`, `status`, `Destino_codDestino`) VALUES
-	(1, 'Alpha2.0', 'Chegar a Marte e soltar os robôs colonizadores', '2025-05-14', '2025-09-30', 'Em progresso', 1);
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para procedure space_ijp.proc_AlteraBaseLancamento
 DROP PROCEDURE IF EXISTS `proc_AlteraBaseLancamento`;
@@ -891,116 +885,68 @@ CREATE TABLE IF NOT EXISTS `sensores` (
   CONSTRAINT `fk_Sensores_Foguete1` FOREIGN KEY (`Foguete_codFoguete`) REFERENCES `foguete` (`codFoguete`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 
--- Copiando dados para a tabela space_ijp.sensores: ~0 rows (aproximadamente)
-INSERT INTO `sensores` (`codSensores`, `tipo`, `unidade`, `position`, `Foguete_codFoguete`) VALUES
-	(2, 'Acelerometro', '2000', 'Painel Central', 1);
+-- Exportação de dados foi desmarcado.
+
+-- Copiando estrutura para tabela space_ijp.usuario
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `codUsuario` int NOT NULL AUTO_INCREMENT,
+  `NomeUsuario` varchar(150) NOT NULL DEFAULT '0',
+  `Dinheiro` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `primeiraVez` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`codUsuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+
+-- Exportação de dados foi desmarcado.
 
 -- Copiando estrutura para view space_ijp.vi_dadosfoguete
 DROP VIEW IF EXISTS `vi_dadosfoguete`;
 -- Criando tabela temporária para evitar erros de dependência de VIEW
 CREATE TABLE `vi_dadosfoguete` (
-	`nomeFoguete` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`status` TINYINT NOT NULL,
-	`status_descricao` VARCHAR(1) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`nomeFoguete` VARCHAR(150) NOT NULL COLLATE 'utf8mb3_general_ci',
+	`status` TINYINT(3) NOT NULL,
+	`status_descricao` VARCHAR(22) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
 	`CargasComPeso` TEXT NULL COLLATE 'utf8mb3_general_ci',
 	`Sensores` TEXT NULL COLLATE 'utf8mb3_general_ci'
-) ENGINE=MyISAM;
-
--- Copiando estrutura para view space_ijp.vi_dadosfuncionario
-DROP VIEW IF EXISTS `vi_dadosfuncionario`;
--- Criando tabela temporária para evitar erros de dependência de VIEW
-CREATE TABLE `vi_dadosfuncionario` (
-	`codFuncionario` INT NOT NULL,
-	`nomeFuncionario` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`cpf` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`nomeCargo` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`situacao` VARCHAR(1) NOT NULL COLLATE 'utf8mb4_general_ci',
-	`email` VARCHAR(1) NULL COLLATE 'utf8mb3_general_ci',
-	`telefone` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci'
 ) ENGINE=MyISAM;
 
 -- Copiando estrutura para view space_ijp.vi_dadosmissoes
 DROP VIEW IF EXISTS `vi_dadosmissoes`;
 -- Criando tabela temporária para evitar erros de dependência de VIEW
 CREATE TABLE `vi_dadosmissoes` (
-	`codMissao` INT NOT NULL,
-	`nomeMissao` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`nomeLocal` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`distancia_formatada` VARCHAR(1) NULL COLLATE 'utf8mb4_general_ci',
-	`dataInicio` VARCHAR(1) NULL COLLATE 'utf8mb4_general_ci',
-	`dataFim` VARCHAR(1) NULL COLLATE 'utf8mb4_general_ci',
-	`duracao` VARCHAR(1) NULL COLLATE 'utf8mb4_general_ci'
-) ENGINE=MyISAM;
-
--- Copiando estrutura para view space_ijp.vi_financiamentos
-DROP VIEW IF EXISTS `vi_financiamentos`;
--- Criando tabela temporária para evitar erros de dependência de VIEW
-CREATE TABLE `vi_financiamentos` (
-	`codFinanciamento` INT NOT NULL,
-	`patrocinador` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`valor` DECIMAL(10,2) NOT NULL,
-	`nomeMissao` VARCHAR(1) NULL COLLATE 'utf8mb3_general_ci',
-	`dataInicio` DATE NULL,
-	`dataFim` DATE NULL,
-	`statusMissao` VARCHAR(1) NULL COLLATE 'utf8mb3_general_ci',
-	`FoguetesEnvolvidos` TEXT NULL COLLATE 'utf8mb3_general_ci'
+	`codMissao` INT(10) NOT NULL,
+	`nomeMissao` VARCHAR(100) NOT NULL COLLATE 'utf8mb3_general_ci',
+	`nomeLocal` VARCHAR(150) NOT NULL COLLATE 'utf8mb3_general_ci',
+	`distancia_formatada` VARCHAR(69) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`dataInicio` VARCHAR(10) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`dataFim` VARCHAR(10) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`duracao` VARCHAR(83) NULL COLLATE 'utf8mb4_0900_ai_ci'
 ) ENGINE=MyISAM;
 
 -- Copiando estrutura para view space_ijp.vi_funcionariosnaempresa
 DROP VIEW IF EXISTS `vi_funcionariosnaempresa`;
 -- Criando tabela temporária para evitar erros de dependência de VIEW
 CREATE TABLE `vi_funcionariosnaempresa` (
-	`codFuncionario` INT NOT NULL,
-	`dataNascimento` VARCHAR(1) NULL COLLATE 'utf8mb4_general_ci',
-	`idade` BIGINT NULL,
-	`nomeFuncionario` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
+	`codFuncionario` INT(10) NOT NULL,
+	`dataNascimento` VARCHAR(10) NULL COLLATE 'utf8mb4_general_ci',
+	`idade` BIGINT(19) NULL,
+	`nomeFuncionario` VARCHAR(150) NOT NULL COLLATE 'utf8mb3_general_ci',
 	`salarioAtual` DECIMAL(8,2) NOT NULL,
-	`nomeCargo` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`sta tusFuncionario` VARCHAR(1) NOT NULL COLLATE 'utf8mb4_general_ci'
-) ENGINE=MyISAM;
-
--- Copiando estrutura para view space_ijp.vi_lancamentos
-DROP VIEW IF EXISTS `vi_lancamentos`;
--- Criando tabela temporária para evitar erros de dependência de VIEW
-CREATE TABLE `vi_lancamentos` (
-	`codLancamentos` INT NOT NULL,
-	`codbaseLancamento` INT NOT NULL,
-	`dataLancamento` DATE NOT NULL,
-	`resultado` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`paisbase` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`nomeFoguete` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',
-	`nomeMissao` VARCHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci'
+	`nomeCargo` VARCHAR(150) NOT NULL COLLATE 'utf8mb3_general_ci',
+	`sta tusFuncionario` VARCHAR(16) NOT NULL COLLATE 'utf8mb4_0900_ai_ci'
 ) ENGINE=MyISAM;
 
 -- Removendo tabela temporária e criando a estrutura VIEW final
 DROP TABLE IF EXISTS `vi_dadosfoguete`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_dadosfoguete` AS select `f`.`nomeFoguete` AS `nomeFoguete`,`f`.`status` AS `status`,(case `f`.`status` when 0 then 'Não pronto' when 1 then 'Pronto para lançamento' when 2 then 'Já lançado' when 3 then 'Retornando para base' else 'Desconhecido' end) AS `status_descricao`,group_concat(distinct concat(`c`.`tipo`,' (',(`c`.`peso` * `c`.`quant`),' Kg)') separator ', ') AS `CargasComPeso`,group_concat(distinct `s`.`tipo` separator ', ') AS `Sensores` from ((`foguete` `f` join `carga` `c` on((`c`.`Foguete_codFoguete` = `f`.`codFoguete`))) join `sensores` `s` on((`s`.`Foguete_codFoguete` = `f`.`codFoguete`))) group by `f`.`codFoguete`,`f`.`nomeFoguete`,`f`.`status`
-;
-
--- Removendo tabela temporária e criando a estrutura VIEW final
-DROP TABLE IF EXISTS `vi_dadosfuncionario`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_dadosfuncionario` AS select `funcionario`.`codFuncionario` AS `codFuncionario`,`funcionario`.`nomeFuncionario` AS `nomeFuncionario`,`funcionario`.`cpf` AS `cpf`,`cargo`.`nomeCargo` AS `nomeCargo`,(case when 1 then 'Ativo' when 0 then 'Demitido' else 'Desconhecido' end) AS `situacao`,`funcionario`.`email` AS `email`,`funcionario`.`telefone` AS `telefone` from (`funcionario` join `cargo`) order by `funcionario`.`nomeFuncionario`
-;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_dadosfoguete` AS select `f`.`nomeFoguete` AS `nomeFoguete`,`f`.`status` AS `status`,(case `f`.`status` when 0 then 'Não pronto' when 1 then 'Pronto para lançamento' when 2 then 'Já lançado' when 3 then 'Retornando para base' else 'Desconhecido' end) AS `status_descricao`,group_concat(distinct concat(`c`.`tipo`,' (',(`c`.`peso` * `c`.`quant`),' Kg)') separator ', ') AS `CargasComPeso`,group_concat(distinct `s`.`tipo` separator ', ') AS `Sensores` from ((`foguete` `f` join `carga` `c` on((`c`.`Foguete_codFoguete` = `f`.`codFoguete`))) join `sensores` `s` on((`s`.`Foguete_codFoguete` = `f`.`codFoguete`))) group by `f`.`codFoguete`,`f`.`nomeFoguete`,`f`.`status`;
 
 -- Removendo tabela temporária e criando a estrutura VIEW final
 DROP TABLE IF EXISTS `vi_dadosmissoes`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_dadosmissoes` AS select `m`.`codMissao` AS `codMissao`,`m`.`nomeMissao` AS `nomeMissao`,`d`.`nomeLocal` AS `nomeLocal`,(case when (`d`.`distancia` >= 1000000000) then concat(format((`d`.`distancia` / 1000000000),1),' bilhões') when (`d`.`distancia` >= 1000000) then concat(format((`d`.`distancia` / 1000000),1),' milhões') when (`d`.`distancia` >= 1000) then concat(format((`d`.`distancia` / 1000),1),' mil') else format(`d`.`distancia`,0) end) AS `distancia_formatada`,date_format(`m`.`dataInicio`,'%d/%m/%Y') AS `dataInicio`,date_format(`m`.`dataFim`,'%d/%m/%Y') AS `dataFim`,(case when ((`m`.`dataInicio` is not null) and (`m`.`dataFim` is not null)) then concat(timestampdiff(YEAR,`m`.`dataInicio`,`m`.`dataFim`),' anos, ',(timestampdiff(MONTH,`m`.`dataInicio`,`m`.`dataFim`) % 12),' meses, ',(timestampdiff(DAY,`m`.`dataInicio`,`m`.`dataFim`) % 30),' dias') else 'Em andamento' end) AS `duracao` from (`missoes` `m` join `destino` `d` on((`m`.`Destino_codDestino` = `d`.`codDestino`)))
-;
-
--- Removendo tabela temporária e criando a estrutura VIEW final
-DROP TABLE IF EXISTS `vi_financiamentos`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_financiamentos` AS select `f`.`codFinanciamento` AS `codFinanciamento`,`f`.`patrocinador` AS `patrocinador`,`f`.`valor` AS `valor`,`m`.`nomeMissao` AS `nomeMissao`,`m`.`dataInicio` AS `dataInicio`,`m`.`dataFim` AS `dataFim`,`m`.`status` AS `statusMissao`,group_concat(distinct `fo`.`nomeFoguete` separator ', ') AS `FoguetesEnvolvidos` from (((`financiamento` `f` left join `missoes` `m` on((`m`.`codMissao` = `f`.`Missoes_codMissao`))) left join `lancamentos` `l` on((`l`.`Missoes_codMissao` = `m`.`codMissao`))) left join `foguete` `fo` on((`fo`.`codFoguete` = `l`.`Foguete_codFoguete`))) group by `f`.`codFinanciamento`,`f`.`patrocinador`,`f`.`valor`,`m`.`nomeMissao`,`m`.`dataInicio`,`m`.`dataFim`,`m`.`status`
-;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_dadosmissoes` AS select `m`.`codMissao` AS `codMissao`,`m`.`nomeMissao` AS `nomeMissao`,`d`.`nomeLocal` AS `nomeLocal`,(case when (`d`.`distancia` >= 1000000000) then concat(format((`d`.`distancia` / 1000000000),1),' bilhões') when (`d`.`distancia` >= 1000000) then concat(format((`d`.`distancia` / 1000000),1),' milhões') when (`d`.`distancia` >= 1000) then concat(format((`d`.`distancia` / 1000),1),' mil') else format(`d`.`distancia`,0) end) AS `distancia_formatada`,date_format(`m`.`dataInicio`,'%d/%m/%Y') AS `dataInicio`,date_format(`m`.`dataFim`,'%d/%m/%Y') AS `dataFim`,(case when ((`m`.`dataInicio` is not null) and (`m`.`dataFim` is not null)) then concat(timestampdiff(YEAR,`m`.`dataInicio`,`m`.`dataFim`),' anos, ',(timestampdiff(MONTH,`m`.`dataInicio`,`m`.`dataFim`) % 12),' meses, ',(timestampdiff(DAY,`m`.`dataInicio`,`m`.`dataFim`) % 30),' dias') else 'Em andamento' end) AS `duracao` from (`missoes` `m` join `destino` `d` on((`m`.`Destino_codDestino` = `d`.`codDestino`)));
 
 -- Removendo tabela temporária e criando a estrutura VIEW final
 DROP TABLE IF EXISTS `vi_funcionariosnaempresa`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_funcionariosnaempresa` AS select `f`.`codFuncionario` AS `codFuncionario`,date_format(`f`.`dataNascimento`,'%d/%m/%Y') AS `dataNascimento`,timestampdiff(YEAR,`f`.`dataNascimento`,curdate()) AS `idade`,`f`.`nomeFuncionario` AS `nomeFuncionario`,`f`.`salarioAtual` AS `salarioAtual`,`c`.`nomeCargo` AS `nomeCargo`,(case `f`.`status` when 1 then 'Ainda na empresa' when 0 then 'Já demitido' else 'Desconhecido' end) AS `sta tusFuncionario` from (`funcionario` `f` join `cargo` `c` on((`f`.`cargo_codcargo` = `c`.`codcargo`)))
-;
-
--- Removendo tabela temporária e criando a estrutura VIEW final
-DROP TABLE IF EXISTS `vi_lancamentos`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_lancamentos` AS select `l`.`codLancamentos` AS `codLancamentos`,`b`.`codbaseLancamento` AS `codbaseLancamento`,`l`.`dataLancamento` AS `dataLancamento`,`l`.`resultado` AS `resultado`,`b`.`paisbase` AS `paisbase`,`f`.`nomeFoguete` AS `nomeFoguete`,`m`.`nomeMissao` AS `nomeMissao` from (((`lancamentos` `l` join `foguete` `f` on((`l`.`Foguete_codFoguete` = `f`.`codFoguete`))) join `missoes` `m` on((`l`.`Missoes_codMissao` = `m`.`codMissao`))) join `baselancamento` `b`)
-;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `vi_funcionariosnaempresa` AS select `f`.`codFuncionario` AS `codFuncionario`,date_format(`f`.`dataNascimento`,'%d/%m/%Y') AS `dataNascimento`,timestampdiff(YEAR,`f`.`dataNascimento`,curdate()) AS `idade`,`f`.`nomeFuncionario` AS `nomeFuncionario`,`f`.`salarioAtual` AS `salarioAtual`,`c`.`nomeCargo` AS `nomeCargo`,(case `f`.`status` when 1 then 'Ainda na empresa' when 0 then 'Já demitido' else 'Desconhecido' end) AS `sta tusFuncionario` from (`funcionario` `f` join `cargo` `c` on((`f`.`cargo_codcargo` = `c`.`codcargo`)));
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
