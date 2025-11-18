@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class FuncionarioJanela extends javax.swing.JFrame {
+public class FuncionarioJanela extends javax.swing.JDialog {
     private FuncionarioDAO FuncionarioDao = new FuncionarioDAO();
     List<FuncionarioJA> listasFuncionario = FuncionarioDao.getLista();
     

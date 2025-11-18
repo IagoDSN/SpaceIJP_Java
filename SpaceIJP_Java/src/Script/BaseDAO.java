@@ -14,70 +14,133 @@ import DAObd.ConexaoBD;
  *
  * @author Iagod
  */
-
 public class BaseDAO {
 
-    public boolean inserir(BaseJA b) {
-        String sql = "INSERT INTO baselancamento (nomebase, paisbase, precoConstrucao) VALUES (?, ?, ?)";
-        try (PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setString(1, b.getNomeBase());
-            pst.setString(2, b.getPaisBase());
-            pst.setDouble(3, b.getPrecoConstrucao());
+    public List<BaseJA> getLista() {
+        String mysql = "select * from baselancamento";
+        List<BaseJA> listaBase = new ArrayList<>();
 
-            if (pst.executeUpdate() > 0) {
-                ResultSet rs = pst.getGeneratedKeys();
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                BaseJA objBase = new BaseJA();
+                objBase.setCodBaseLancamento(rs.getInt("codbaseLancamento"));
+                objBase.setNomeBase(rs.getString("nomebase"));
+                objBase.setPaisBase(rs.getString("paisbase"));
+                objBase.setPrecoConstrucao(rs.getDouble("precoConstrucao"));
+                listaBase.add(objBase);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL " + ex.getMessage());
+        }
+
+        return listaBase;
+    }
+
+    public boolean inserir(BaseJA b) {
+    String mysql = "INSERT INTO baselancamento (nomebase, paisbase, precoConstrucao) VALUES (?, ?, ?)";
+    try {
+        PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+        pst.setString(1, b.getNomeBase());
+        pst.setString(2, b.getPaisBase());
+        pst.setDouble(3, b.getPrecoConstrucao());
+
+        int affected = pst.executeUpdate();
+        if (affected > 0) {
+            try (ResultSet rs = pst.getGeneratedKeys()) {
                 if (rs.next()) {
                     b.setCodBaseLancamento(rs.getInt(1));
                 }
+            }
+            pst.close();
+            return true;
+        } else {
+            pst.close();
+            return false;
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Erro ao inserir base: " + ex.getMessage());
+        return false;
+    }
+}
+
+    public boolean alterar(BaseJA objBase) {
+        String mysql = "update baselancamento set nomebase = ?, paisbase = ?, precoConstrucao = ? where codbaseLancamento = ?";
+
+        try {
+            PreparedStatement prt = ConexaoBD.getPreparableStatement(mysql);
+            prt.setString(1, objBase.getNomeBase());
+            prt.setString(2, objBase.getPaisBase());
+            prt.setDouble(3, objBase.getPrecoConstrucao());
+            prt.setInt(4, objBase.getCodBaseLancamento());
+
+            if (prt.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Base de lançamento alterada com sucesso!");
                 return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir base de lançamento: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
-    public boolean alterar(BaseJA b) {
-        String sql = "UPDATE baselancamento SET nomebase=?, paisbase=?, precoConstrucao=? WHERE codbaseLancamento=?";
-        try (PreparedStatement pst = ConexaoBD.getPreparedStatement(sql)) {
-            pst.setString(1, b.getNomeBase());
-            pst.setString(2, b.getPaisBase());
-            pst.setDouble(3, b.getPrecoConstrucao());
-            pst.setInt(4, b.getCodBaseLancamento());
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar base de lançamento: " + e.getMessage());
+    public boolean salvar(BaseJA objBase) {
+        if (objBase.getCodBaseLancamento() == 0) {
+            return inserir(objBase);
+        } else {
+            return alterar(objBase);
         }
-        return false;
     }
 
-    public boolean remover(int cod) {
-        String sql = "DELETE FROM baselancamento WHERE codbaseLancamento=?";
-        try (PreparedStatement pst = ConexaoBD.getPreparedStatement(sql)) {
-            pst.setInt(1, cod);
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao remover base de lançamento: " + e.getMessage());
+    public boolean remover(BaseJA objBase) {
+        String mysql = "delete from baselancamento where codbaseLancamento = ?";
+
+        try {
+            PreparedStatement prt = ConexaoBD.getPreparableStatement(mysql);
+            prt.setInt(1, objBase.getCodBaseLancamento());
+
+            if (prt.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Base de lançamento apagada com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
-    public List<BaseJA> getLista() {
-        List<BaseJA> lista = new ArrayList<>();
-        String sql = "SELECT * FROM baselancamento";
-        try (PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
+    public BaseJA localizarBase(int codigoBase) {
+        String mysql = "select * from baselancamento where codbaseLancamento = ?";
+        BaseJA objBase = new BaseJA();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, codigoBase);
+            ResultSet rs = pst.executeQuery();
+
             while (rs.next()) {
-                BaseJA b = new BaseJA();
-                b.setCodBaseLancamento(rs.getInt("codbaseLancamento"));
-                b.setNomeBase(rs.getString("nomebase"));
-                b.setPaisBase(rs.getString("paisbase"));
-                b.setPrecoConstrucao(rs.getDouble("precoConstrucao"));
-                lista.add(b);
+                objBase.setCodBaseLancamento(rs.getInt("codbaseLancamento"));
+                objBase.setNomeBase(rs.getString("nomebase"));
+                objBase.setPaisBase(rs.getString("paisbase"));
+                objBase.setPrecoConstrucao(rs.getDouble("precoConstrucao"));
+                return objBase;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar bases de lançamento: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL na classe BaseDAO no método localizarBase " + ex.getMessage());
         }
-        return lista;
+
+        return null;
     }
 }

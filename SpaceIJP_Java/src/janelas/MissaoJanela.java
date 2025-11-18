@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class MissaoJanela extends javax.swing.JFrame {
+public class MissaoJanela extends javax.swing.JDialog {
 
     private MissaoDAO MissaoDao = new MissaoDAO();
     List<MissaoJA> listaMissao = MissaoDao.getLista();

@@ -5,10 +5,10 @@
  */
 package Script;
 
-import DAObd.ConexaoBD;
 import java.sql.*;
 import java.util.*;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import DAObd.ConexaoBD;
 
 /**
  *
@@ -17,110 +17,123 @@ import javax.swing.JOptionPane;
 public class CargoDAO {
 
     public List<CargoJA> getLista() {
-        List<CargoJA> lista = new ArrayList<>();
-        String sql = "SELECT * FROM cargo";
+        String mysql = "select * from cargo";
+        List<CargoJA> listaCargo = new ArrayList<>();
 
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
-                CargoJA c = new CargoJA();
-                c.setCodCargo(rs.getInt("codcargo"));
-                c.setNomeCargo(rs.getString("nomeCargo"));
-                c.setSalarioInicial(rs.getFloat("salarioInicial"));
-                lista.add(c);
+                CargoJA objCargo = new CargoJA();
+                objCargo.setCodCargo(rs.getInt("codcargo"));
+                objCargo.setNomeCargo(rs.getString("nomeCargo"));
+                objCargo.setSalarioInicial(rs.getFloat("salarioInicial"));
+                listaCargo.add(objCargo);
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar cargos: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL " + ex.getMessage());
         }
 
-        return lista;
+        return listaCargo;
     }
 
     public boolean inserir(CargoJA c) {
-        String sql = "INSERT INTO cargo (nomeCargo, salarioInicial) VALUES (?, ?)";
+        String mysql = "INSERT INTO cargo (nomeCargo, salarioInicial) VALUES (?, ?)";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             pst.setString(1, c.getNomeCargo());
             pst.setFloat(2, c.getSalarioInicial());
 
-            if (pst.executeUpdate() > 0) {
-                ResultSet rs = pst.getGeneratedKeys();
-                if (rs.next()) {
-                    c.setCodCargo(rs.getInt(1));
-                }
+            int affected = pst.executeUpdate();
+            if (affected > 0) {
+                pst.close();
                 return true;
+            } else {
+                pst.close();
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir cargo: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao inserir cargo: " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
     public boolean alterar(CargoJA c) {
-        String sql = "UPDATE cargo SET nomeCargo=?, salarioInicial=? WHERE codcargo=?";
+        String mysql = "update cargo set nomeCargo = ?, salarioInicial = ? where codcargo = ?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             pst.setString(1, c.getNomeCargo());
             pst.setFloat(2, c.getSalarioInicial());
             pst.setInt(3, c.getCodCargo());
 
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar cargo: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public static boolean remover(int codCargo) {
-    String sql = "DELETE FROM cargo WHERE codcargo = ?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, codCargo);
             if (pst.executeUpdate() > 0) {
-                JOptionPane.showMessageDialog(null, "Cargo deletado com sucesso!");
+                JOptionPane.showMessageDialog(null, "Cargo alterado com sucesso!");
                 return true;
             } else {
-                JOptionPane.showMessageDialog(null, "Cargo não encontrado!");
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
                 return false;
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro de SQL ao deletar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
             return false;
         }
     }
-    // Chave Estrangeira
-    public List<String> listarNomesCargos() {
-        List<String> nomes = new ArrayList<>();
-        String sql = "SELECT nomeCargo FROM cargo ORDER BY nomeCargo";
 
-        try (Connection conn = ConexaoBD.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-
-            while (rs.next()) {
-                nomes.add(rs.getString("nomeCargo"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public boolean salvar(CargoJA objCargo) {
+        if (objCargo.getCodCargo() == 0) {
+            return inserir(objCargo);
+        } else {
+            return alterar(objCargo);
         }
-
-        return nomes;
     }
 
-    public Integer buscarCodPorNome(String nomeFoguete) {
-        String sql = "SELECT codCargo FROM cargo WHERE nomeCargo = ?";
-        try (Connection conn = ConexaoBD.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, nomeFoguete);
-            ResultSet rs = pst.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("codCargo");
+    public boolean remover(CargoJA objCargo) {
+        String mysql = "delete from cargo where codcargo = ?";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, objCargo.getCodCargo());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Cargo removido com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
+                return false;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
+            return false;
         }
+    }
+
+    public CargoJA localizarCargo(int codCargo) {
+        String mysql = "select * from cargo where codcargo = ?";
+        CargoJA objCargo = new CargoJA();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, codCargo);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                objCargo.setCodCargo(rs.getInt("codcargo"));
+                objCargo.setNomeCargo(rs.getString("nomeCargo"));
+                objCargo.setSalarioInicial(rs.getFloat("salarioInicial"));
+                return objCargo;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL no método localizarCargo " + ex.getMessage());
+        }
+
         return null;
     }
 }

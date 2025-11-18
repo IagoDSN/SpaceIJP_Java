@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class FinanciamentosJanela extends javax.swing.JFrame {
+public class FinanciamentosJanela extends javax.swing.JDialog {
 
     private FinanciamentoDAO financiamentoDao = new FinanciamentoDAO();
     List<FinanciamentoJA> listaFinanciamento = financiamentoDao.getLista();

@@ -22,7 +22,6 @@ public class FogueteJA {
         
     }
 
-    // getters e setters
     public int getCodFoguete() { return codFoguete; }
     public void setCodFoguete(int codFoguete) { this.codFoguete = codFoguete; }
     public String getNomeFoguete() { return nomeFoguete; }

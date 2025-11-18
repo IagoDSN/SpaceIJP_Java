@@ -5,10 +5,9 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
 import Script.BaseDAO;
 import Script.BaseJA;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -16,10 +15,9 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class BaseJanela extends javax.swing.JFrame {
+public class BaseJanela extends javax.swing.JDialog {
 
     private BaseDAO baseDao = new BaseDAO();
-    List<BaseJA> listaBases = baseDao.getLista();
 
     private boolean emEdicao = false;
     private boolean criando = false;
@@ -43,31 +41,29 @@ public class BaseJanela extends javax.swing.JFrame {
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-    private void carregarTabelaFoguetes() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaBase.getModel();
-        modelo.setRowCount(0);
-        for (BaseJA f : listaBases) {
-            modelo.addRow(new Object[]{
-                f.getCodBaseLancamento(),
-                f.getNomeBase(),
-                f.getPaisBase(),
-                f.getPrecoConstrucao(),
-            });
+    public void carregarTabelaFoguetes() {
+        listaBases.clear();
+        listaBases.addAll(baseDao.getLista());
+        int linha = listaBases.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
 
-    private void trataEdicao(boolean status){
-    inputNome.setEnabled(status);
-    inputPais.setEnabled(status);
-    inputPreco.setEnabled(status);
+    private void trataEdicao(boolean status) {
+        inputNome.setEnabled(status);
+        inputPais.setEnabled(status);
+        inputPreco.setEnabled(status);
 
-    salvar.setEnabled(status);
-    cancelar.setEnabled(status);
-    cadastrar.setEnabled(!status);
-    editar.setEnabled(!status);
-    remover.setEnabled(!status);
-    atualizar.setEnabled(!status);
-}
+        salvar.setEnabled(status);
+        cancelar.setEnabled(status);
+        cadastrar.setEnabled(!status);
+        editar.setEnabled(!status);
+        remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
+    }
 
     public boolean validaCampos() {
         if (inputNome.getText().isEmpty()) {
@@ -88,23 +84,6 @@ public class BaseJanela extends javax.swing.JFrame {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (BaseJA f : listaBases) {
-                if (f.getCodBaseLancamento() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -113,14 +92,16 @@ public class BaseJanela extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaBases = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<BaseJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaBase = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -132,7 +113,6 @@ public class BaseJanela extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         inputPreco = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gerenciador de Bases");
 
         jPanel1.setBackground(new java.awt.Color(149, 156, 182));
@@ -196,28 +176,31 @@ public class BaseJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaBase.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Nome", "Pais", "Preçio de construção"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaBase);
-        if (tabelaBase.getColumnModel().getColumnCount() > 0) {
-            tabelaBase.getColumnModel().getColumn(0).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(1).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(2).setResizable(false);
-            tabelaBase.getColumnModel().getColumn(3).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaBases, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codBaseLancamento}"));
+        columnBinding.setColumnName("Cod Base Lancamento");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeBase}"));
+        columnBinding.setColumnName("Nome Base");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${paisBase}"));
+        columnBinding.setColumnName("Pais Base");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${precoConstrucao}"));
+        columnBinding.setColumnName("Preco Construcao");
+        columnBinding.setColumnClass(Double.class);
+        columnBinding.setEditable(false);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -316,63 +299,45 @@ public class BaseJanela extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-    BaseJA f = new BaseJA();
-    f.setCodBaseLancamento(0);
-
-    listaBases.add(f);
-    carregarTabelaFoguetes();
-
-    int linha = listaBases.size() - 1;
-    if (linha >= 0) tabelaBase.setRowSelectionInterval(linha, linha);
-
-    inputCodigo.setText("0");
-    inputNome.setText("");
-    inputPais.setText("");
-    inputPreco.setText("0");
-
-    criando = true;
-    emEdicao = true;
-    trataEdicao(true);
+        listaBases.add(new BaseJA());
+        int linha = listaBases.size() - 1;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
+        trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma Base para editar!");
-        return;
-    }
-    BaseJA f = listaBases.get(linha);
-    inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
-    inputNome.setText(f.getNomeBase());
-    inputPais.setText(String.valueOf(f.getPaisBase()));
-    inputPreco.setText(String.valueOf(f.getPrecoConstrucao()));
-
-    criando = false;
-    emEdicao = true;
-    trataEdicao(true);
+        trataEdicao(true);
+        inputNome.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
-        // TODO add your handling code here:
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma BASE para deletar!");
-        return;
-    }
-    BaseJA f = listaBases.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Base " + f.getNomeBase() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-    boolean ok = baseDao.remover(f.getCodBaseLancamento());
-    if (ok) {
-        listaBases.remove(linha);
-        carregarTabelaFoguetes();
-    }
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            BaseJA objBase = listaBases.get(linhaSelecionada);
+            baseDao.remover(objBase);
+
+            carregarTabelaFoguetes();
+            trataEdicao(false);
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
@@ -382,74 +347,30 @@ public class BaseJanela extends javax.swing.JFrame {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-     if (!emEdicao) return;
-    int linha = tabelaBase.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione a linha para salvar!");
-        return;
+        if (validaCampos()) {
+        trataEdicao(false);
+
+        int linhaSelecionada = tabela.getSelectedRow();
+        BaseJA objBase = listaBases.get(linhaSelecionada);
+
+        objBase.setNomeBase(inputNome.getText());
+        objBase.setPaisBase(inputPais.getText());
+        objBase.setPrecoConstrucao(Double.parseDouble(inputPreco.getText()));
+
+        baseDao.salvar(objBase);
+
+        carregarTabelaFoguetes();
     }
 
-    if (!validaCampos()) return;
-
-    BaseJA f = listaBases.get(linha);
-
-    f.setNomeBase(inputNome.getText().trim());
-    f.setPaisBase(inputPais.getText().trim());
-    try {
-        f.setPrecoConstrucao(Double.parseDouble(inputPreco.getText().trim()));
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
-        return;
-    }
-
-    boolean ok;
-    if (f.getCodBaseLancamento() == 0) {
-        ok = baseDao.inserir(f);
-        if (ok) {
-            inputCodigo.setText(String.valueOf(f.getCodBaseLancamento()));
-        }
-    } else {
-        ok = baseDao.alterar(f);
-    }
-
-    if (!ok) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar no banco.");
-        return;
-    }
-
-    listaBases = baseDao.getLista();
-    carregarTabelaFoguetes();
-    for (int i = 0; i < listaBases.size(); i++) {
-        if (listaBases.get(i).getCodBaseLancamento() == f.getCodBaseLancamento()) {
-            tabelaBase.setRowSelectionInterval(i, i);
-            break;
-        }
-    }
-
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
-
-    JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-    if (criando) {
-        for (int i = listaBases.size() - 1; i >= 0; i--) {
-            if (listaBases.get(i).getCodBaseLancamento() == 0) {
-                listaBases.remove(i);
-                break;
-            }
-        }
+        emEdicao = false;
+        criando = false;
+
         carregarTabelaFoguetes();
-    } else {
-        listaBases = baseDao.getLista();
-        carregarTabelaFoguetes();
-    }
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -502,8 +423,10 @@ public class BaseJanela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<BaseJA> listaBases;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaBase;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

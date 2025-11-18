@@ -14,5 +14,6 @@ import java.util.List;
  */
 public class Dados {
     public static List<FogueteJA> listaFoguete = new ArrayList<>();
+    public static List<BaseJA> listaBases = new ArrayList<>();
     
 }

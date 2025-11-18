@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import Script.FogueteDao;
 import Script.FogueteJA;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -16,10 +17,9 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class FogueteJanela extends javax.swing.JFrame {
+public class FogueteJanela extends javax.swing.JDialog {
 
-    private FogueteDao fogueteDao = new FogueteDao();
-    List<FogueteJA> listaFoguetes = fogueteDao.getLista();
+    private FogueteDao objDaoFoguete = new FogueteDao();
 
     private boolean emEdicao = false;
     private boolean criando = false;
@@ -46,32 +46,30 @@ public class FogueteJanela extends javax.swing.JFrame {
     }
 
     private void carregarTabelaFoguetes() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaFoguete.getModel();
-        modelo.setRowCount(0);
-        for (FogueteJA f : listaFoguetes) {
-            modelo.addRow(new Object[]{
-                f.getCodFoguete(),
-                f.getNomeFoguete(),
-                f.getMaximoCombustivel(),
-                f.getQuantCombustivel(),
-                f.getVelocidade(),
-                f.getStatus()
-            });
+        listaFoguetes.clear();
+        listaFoguetes.addAll(objDaoFoguete.getLista());
+        int linha = listaFoguetes.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
 
-    private void trataEdicao(boolean status){
-    inputNome.setEnabled(status);
-    inputMaxCombustivel.setEnabled(status);
-    inputVelocidade.setEnabled(status);
+    private void trataEdicao(boolean status) {
+        inputNome.setEnabled(status);
+        inputMaxCombustivel.setEnabled(status);
+        inputVelocidade.setEnabled(status);
+        inputQuantCombustivel.setEnabled(status);
+        inputStatus.setEnabled(status);
 
-    salvar.setEnabled(status);
-    cancelar.setEnabled(status);
-    cadastrar.setEnabled(!status);
-    editar.setEnabled(!status);
-    remover.setEnabled(!status);
-    atualizar.setEnabled(!status);
-}
+        salvar.setEnabled(status);
+        cancelar.setEnabled(status);
+        cadastrar.setEnabled(!status);
+        editar.setEnabled(!status);
+        remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
+    }
 
     public boolean validaCampos() {
         if (inputNome.getText().isEmpty()) {
@@ -92,23 +90,6 @@ public class FogueteJanela extends javax.swing.JFrame {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (FogueteJA f : listaFoguetes) {
-                if (f.getCodFoguete() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -117,18 +98,19 @@ public class FogueteJanela extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaFoguetes = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<FogueteJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaFoguete = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        inputNome = new javax.swing.JTextField();
         cancelar = new javax.swing.JButton();
         salvar = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -139,6 +121,7 @@ public class FogueteJanela extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         inputStatus = new javax.swing.JTextField();
         inputVelocidade = new javax.swing.JTextField();
+        inputNome = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gerenciador de Foguetes");
@@ -204,30 +187,35 @@ public class FogueteJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaFoguete.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Nome", "Max Combustivel", "Quant Combutibel", "Velocidade", "Status"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaFoguete);
-        if (tabelaFoguete.getColumnModel().getColumnCount() > 0) {
-            tabelaFoguete.getColumnModel().getColumn(0).setResizable(false);
-            tabelaFoguete.getColumnModel().getColumn(1).setResizable(false);
-            tabelaFoguete.getColumnModel().getColumn(2).setResizable(false);
-            tabelaFoguete.getColumnModel().getColumn(3).setResizable(false);
-            tabelaFoguete.getColumnModel().getColumn(4).setResizable(false);
-            tabelaFoguete.getColumnModel().getColumn(5).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaFoguetes, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codFoguete}"));
+        columnBinding.setColumnName("Cod Foguete");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeFoguete}"));
+        columnBinding.setColumnName("Nome Foguete");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${maximoCombustivel}"));
+        columnBinding.setColumnName("Maximo Combustivel");
+        columnBinding.setColumnClass(Float.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${velocidade}"));
+        columnBinding.setColumnName("Velocidade");
+        columnBinding.setColumnClass(Double.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${status}"));
+        columnBinding.setColumnName("Status");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${quantCombustivel}"));
+        columnBinding.setColumnName("Quant Combustivel");
+        columnBinding.setColumnClass(Float.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
+            tabela.getColumnModel().getColumn(5).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -262,15 +250,11 @@ public class FogueteJanela extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel4.setText("QuantCombustivel:");
 
-        inputQuantCombustivel.setEditable(false);
-
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel5.setText("Velocidade:");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel6.setText("Status:");
-
-        inputStatus.setEditable(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -292,9 +276,9 @@ public class FogueteJanela extends javax.swing.JFrame {
                                     .addComponent(jLabel3))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(inputMaxCombustivel, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(inputCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(122, 122, 122)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(layout.createSequentialGroup()
@@ -333,10 +317,10 @@ public class FogueteJanela extends javax.swing.JFrame {
                         .addComponent(inputQuantCombustivel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel5)
-                    .addComponent(inputVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -350,69 +334,37 @@ public class FogueteJanela extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-    FogueteJA f = new FogueteJA();
-    f.setCodFoguete(0);
-    f.setQuantCombustivel(0);
-    f.setStatus(0);
-
-    listaFoguetes.add(f);
-    carregarTabelaFoguetes();
-
-    int linha = listaFoguetes.size() - 1;
-    if (linha >= 0) tabelaFoguete.setRowSelectionInterval(linha, linha);
-
-    inputCodigo.setText("0");
-    inputNome.setText("");
-    inputMaxCombustivel.setText("");
-    inputVelocidade.setText("");
-    inputQuantCombustivel.setText("0");
-    inputStatus.setText("0");
-
-    criando = true;
-    emEdicao = true;
-    trataEdicao(true);
+        listaFoguetes.add(new FogueteJA());
+        int linha = listaFoguetes.size() - 1;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
+        trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaFoguete.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um foguete para editar!");
-        return;
-    }
-    FogueteJA f = listaFoguetes.get(linha);
-    inputCodigo.setText(String.valueOf(f.getCodFoguete()));
-    inputNome.setText(f.getNomeFoguete());
-    inputMaxCombustivel.setText(String.valueOf(f.getMaximoCombustivel()));
-    inputVelocidade.setText(String.valueOf(f.getVelocidade()));
-    inputQuantCombustivel.setText(String.valueOf(f.getQuantCombustivel()));
-    inputStatus.setText(String.valueOf(f.getStatus()));
-
-    criando = false;
-    emEdicao = true;
-    trataEdicao(true);
+        trataEdicao(true);
+        inputNome.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaFoguete.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um foguete para deletar!");
-        return;
-    }
-    FogueteJA f = listaFoguetes.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir o foguete " + f.getNomeFoguete() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int linha = tabela.getSelectedRow();
+        if (linha >= 0) {
+            FogueteJA obj = listaFoguetes.get(linha);
+            if (JOptionPane.showConfirmDialog(this, "Deseja realmente remover?",
+                    "Confirmação", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
-    boolean ok = fogueteDao.deletar(f.getCodFoguete());
-    if (ok) {
-        listaFoguetes.remove(linha);
-        carregarTabelaFoguetes();
-    }
+                objDaoFoguete.remover(obj);
+                carregarTabelaFoguetes();
+            }
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
@@ -422,74 +374,28 @@ public class FogueteJanela extends javax.swing.JFrame {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-     if (!emEdicao) return;
-    int linha = tabelaFoguete.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione a linha para salvar!");
-        return;
-    }
+        if (validaCampos()) {
+            trataEdicao(false);
 
-    if (!validaCampos()) return;
+            int linhaSelecionada = tabela.getSelectedRow();
+            FogueteJA objFoguete = listaFoguetes.get(linhaSelecionada);
 
-    FogueteJA f = listaFoguetes.get(linha);
+            objFoguete.setNomeFoguete(inputNome.getText());
+            objFoguete.setMaximoCombustivel(Float.parseFloat(inputMaxCombustivel.getText()));
+            objFoguete.setQuantCombustivel(Float.parseFloat(inputQuantCombustivel.getText()));
+            objFoguete.setVelocidade(Double.parseDouble(inputVelocidade.getText()));
+            objFoguete.setStatus(Integer.parseInt(inputStatus.getText()));
 
-    f.setNomeFoguete(inputNome.getText().trim());
-    try {
-        f.setMaximoCombustivel(Float.parseFloat(inputMaxCombustivel.getText().trim()));
-        f.setVelocidade(Double.parseDouble(inputVelocidade.getText().trim()));
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
-        return;
-    }
+            objDaoFoguete.salvar(objFoguete);
 
-    boolean ok;
-    if (f.getCodFoguete() == 0) {
-        ok = fogueteDao.inserir(f);
-        if (ok) {
-            inputCodigo.setText(String.valueOf(f.getCodFoguete()));
+            carregarTabelaFoguetes();
         }
-    } else {
-        ok = fogueteDao.alterar(f);
-    }
-
-    if (!ok) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar no banco.");
-        return;
-    }
-
-    listaFoguetes = fogueteDao.getLista();
-    carregarTabelaFoguetes();
-    for (int i = 0; i < listaFoguetes.size(); i++) {
-        if (listaFoguetes.get(i).getCodFoguete() == f.getCodFoguete()) {
-            tabelaFoguete.setRowSelectionInterval(i, i);
-            break;
-        }
-    }
-
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
-
-    JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-    if (criando) {
-        for (int i = listaFoguetes.size() - 1; i >= 0; i--) {
-            if (listaFoguetes.get(i).getCodFoguete() == 0) {
-                listaFoguetes.remove(i);
-                break;
-            }
-        }
+        trataEdicao(false);
         carregarTabelaFoguetes();
-    } else {
-        listaFoguetes = fogueteDao.getLista();
-        carregarTabelaFoguetes();
-    }
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -546,8 +452,10 @@ public class FogueteJanela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<FogueteJA> listaFoguetes;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaFoguete;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

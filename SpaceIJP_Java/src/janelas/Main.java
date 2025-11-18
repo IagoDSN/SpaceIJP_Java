@@ -41,7 +41,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void verifica() {
-        usuario = usuarioDao.buscarPorId(1);
+        usuario = usuarioDao.localizarUsuario(1);
         if (usuario != null) {
             int valor = usuario.getPrimeiraVez();
 
@@ -57,7 +57,7 @@ public class Main extends javax.swing.JFrame {
                     @Override
                     public void windowClosed(WindowEvent e) {
                         usuario.setPrimeiraVez(1);
-                        usuarioDao.atualizarUsuario(usuario);
+                        usuarioDao.alterar(usuario);
 
                         setSize(700, 500);
                         setLocationRelativeTo(null);
@@ -75,7 +75,7 @@ public class Main extends javax.swing.JFrame {
             novoUsuario.setDinheiro(BigDecimal.valueOf(200000.00));
             novoUsuario.setPrimeiraVez(0);
 
-            usuarioDao.inserirUsuario(novoUsuario);
+            usuarioDao.inserir(novoUsuario);
 
             JOptionPane.showMessageDialog(null, "Novo usuário criado. O aplicativo será fechado.");
             System.exit(0);

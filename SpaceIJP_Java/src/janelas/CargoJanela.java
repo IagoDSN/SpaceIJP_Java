@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import Script.CargoDAO;
 import Script.CargoJA;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
@@ -16,10 +17,9 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class CargoJanela extends javax.swing.JFrame {
+public class CargoJanela extends javax.swing.JDialog {
 
     private CargoDAO CargoDao = new CargoDAO();
-    List<CargoJA> listaCargos = CargoDao.getLista();
 
     private boolean emEdicao = false;
     private boolean criando = false;
@@ -40,28 +40,27 @@ public class CargoJanela extends javax.swing.JFrame {
     }
 
     private void carregarTabelaCargos() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaCargo.getModel();
-        modelo.setRowCount(0);
-        for (CargoJA c : listaCargos) {
-            modelo.addRow(new Object[]{
-                c.getCodCargo(),
-                c.getNomeCargo(),
-                c.getSalarioInicial()
-            });
+        listaCargos.clear();
+        listaCargos.addAll(CargoDao.getLista());
+        int linha = listaCargos.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
 
-    private void trataEdicao(boolean status){
-    inputNome.setEnabled(status);
-    inputSalarioInitial.setEnabled(status);
+    private void trataEdicao(boolean status) {
+        inputNome.setEnabled(status);
+        inputSalarioInitial.setEnabled(status);
 
-    salvar.setEnabled(status);
-    cancelar.setEnabled(status);
-    cadastrar.setEnabled(!status);
-    editar.setEnabled(!status);
-    remover.setEnabled(!status);
-    atualizar.setEnabled(!status);
-}
+        salvar.setEnabled(status);
+        cancelar.setEnabled(status);
+        cadastrar.setEnabled(!status);
+        editar.setEnabled(!status);
+        remover.setEnabled(!status);
+        atualizar.setEnabled(!status);
+    }
 
     public boolean validaCampos() {
         if (inputNome.getText().isEmpty()) {
@@ -77,23 +76,6 @@ public class CargoJanela extends javax.swing.JFrame {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (CargoJA f : listaCargos) {
-                if (f.getCodCargo() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,14 +84,16 @@ public class CargoJanela extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaCargos = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<CargoJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaCargo = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -183,27 +167,23 @@ public class CargoJanela extends javax.swing.JFrame {
                 .addGap(16, 16, 16))
         );
 
-        tabelaCargo.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Nome", "Salario Inicial"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaCargo);
-        if (tabelaCargo.getColumnModel().getColumnCount() > 0) {
-            tabelaCargo.getColumnModel().getColumn(0).setResizable(false);
-            tabelaCargo.getColumnModel().getColumn(1).setResizable(false);
-            tabelaCargo.getColumnModel().getColumn(2).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaCargos, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codCargo}"));
+        columnBinding.setColumnName("Cod Cargo");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeCargo}"));
+        columnBinding.setColumnName("Nome Cargo");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${salarioInicial}"));
+        columnBinding.setColumnName("Salario Inicial");
+        columnBinding.setColumnClass(Float.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -289,61 +269,46 @@ public class CargoJanela extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-    CargoJA c = new CargoJA();
-    c.setCodCargo(0);
-
-    listaCargos.add(c);
-    carregarTabelaCargos();
-
-    int linha = listaCargos.size() - 1;
-    if (linha >= 0) tabelaCargo.setRowSelectionInterval(linha, linha);
-
-    inputCodigo.setText("0");
-    inputNome.setText("");
-    inputSalarioInitial.setText("");
-
-    criando = true;
-    emEdicao = true;
-    trataEdicao(true);
+        listaCargos.add(new CargoJA());
+        int linha = listaCargos.size() - 1;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
+        trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaCargo.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um Cargo para editar!");
-        return;
-    }
-    CargoJA c = listaCargos.get(linha);
-    inputCodigo.setText(String.valueOf(c.getCodCargo()));
-    inputNome.setText(c.getNomeCargo());
-    inputSalarioInitial.setText(String.valueOf(c.getSalarioInicial()));
-
-    criando = false;
-    emEdicao = true;
-    trataEdicao(true);
+        trataEdicao(true);
+        inputNome.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-    int linha = tabelaCargo.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um Cargo para deletar!");
-        return;
-    }
-    CargoJA c = listaCargos.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir o foguete " + c.getNomeCargo() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-    boolean ok = CargoDAO.remover(c.getCodCargo());
-    if (ok) {
-        listaCargos.remove(linha);
-        carregarTabelaCargos();
-    }
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            CargoJA objBase = listaCargos.get(linhaSelecionada);
+            CargoDao.remover(objBase);
+
+            carregarTabelaCargos();
+            trataEdicao(false);
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
@@ -353,73 +318,26 @@ public class CargoJanela extends javax.swing.JFrame {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-     if (!emEdicao) return;
-    int linha = tabelaCargo.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione a linha para salvar!");
-        return;
-    }
+        if (validaCampos()) {
+            trataEdicao(false);
 
-    if (!validaCampos()) return;
+            int linhaSelecionada = tabela.getSelectedRow();
+            CargoJA objBase = listaCargos.get(linhaSelecionada);
+            objBase.setNomeCargo(inputNome.getText());
+            objBase.setSalarioInicial(Float.parseFloat(inputSalarioInitial.getText()));
+            CargoDao.salvar(objBase);
 
-    CargoJA c = listaCargos.get(linha);
-
-    c.setNomeCargo(inputNome.getText().trim());
-    try {
-        c.setSalarioInicial(Float.parseFloat(inputSalarioInitial.getText().trim()));
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
-        return;
-    }
-
-    boolean ok;
-    if (c.getCodCargo() == 0) {
-        ok = CargoDao.inserir(c);
-        if (ok) {
-            inputCodigo.setText(String.valueOf(c.getCodCargo()));
+            carregarTabelaCargos();
         }
-    } else {
-        ok = CargoDao.alterar(c);
-    }
-
-    if (!ok) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar no banco.");
-        return;
-    }
-
-    listaCargos = CargoDao.getLista();
-    carregarTabelaCargos();
-    for (int i = 0; i < listaCargos.size(); i++) {
-        if (listaCargos.get(i).getCodCargo() == c.getCodCargo()) {
-            tabelaCargo.setRowSelectionInterval(i, i);
-            break;
-        }
-    }
-
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
-
-    JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-    if (criando) {
-        for (int i = listaCargos.size() - 1; i >= 0; i--) {
-            if (listaCargos.get(i).getCodCargo() == 0) {
-                listaCargos.remove(i);
-                break;
-            }
-        }
+        emEdicao = false;
+        criando = false;
+
         carregarTabelaCargos();
-    } else {
-        listaCargos = CargoDao.getLista();
-        carregarTabelaCargos();
-    }
-    emEdicao = false;
-    criando = false;
-    trataEdicao(false);
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -470,8 +388,10 @@ public class CargoJanela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<CargoJA> listaCargos;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaCargo;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

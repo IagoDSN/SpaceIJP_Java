@@ -1,150 +1,150 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Script;
 
-// imports necessários
+import java.sql.*;
+import java.util.*;
+import javax.swing.*;
 import DAObd.ConexaoBD;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JOptionPane;
 
+/**
+ *
+ * @author Iagod
+ */
 public class FogueteDao {
 
-    // INSERT que pega chave gerada
-    public boolean inserir(FogueteJA objFoguete) {
-        String sql = "INSERT INTO Foguete(nomeFoguete, maximoCombustivel, quantCombustivel, velocidade, status) VALUES (?, ?, ?, ?, ?)";
+    public List<FogueteJA> getLista() {
+        String mysql = "select * from foguete";
+        List<FogueteJA> listaFoguete = new ArrayList<>();
+
         try {
-            // Preferível: obter Connection e criar PreparedStatement com RETURN_GENERATED_KEYS
-            Connection conn = ConexaoBD.getConnection(); // ajuste se seu ConexaoBD tiver outro nome
-            PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            ResultSet rs = pst.executeQuery();
 
-            pst.setString(1, objFoguete.getNomeFoguete());
-            pst.setFloat(2, objFoguete.getMaximoCombustivel());
-            pst.setFloat(3, objFoguete.getQuantCombustivel()); // normalmente 0 no cadastro
-            pst.setDouble(4, objFoguete.getVelocidade());
-            pst.setInt(5, objFoguete.getStatus()); // normalmente 0 no cadastro
-
-            int linhas = pst.executeUpdate();
-            if (linhas > 0) {
-                try (ResultSet rs = pst.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        objFoguete.setCodFoguete(rs.getInt(1)); // atualiza o objeto com o id do BD
-                    }
-                }
-                pst.close();
-                JOptionPane.showMessageDialog(null, "Foguete cadastrado com sucesso!");
-                return true;
-            } else {
-                pst.close();
-                JOptionPane.showMessageDialog(null, "Foguete não cadastrado!");
-                return false;
+            while (rs.next()) {
+                FogueteJA objFoguete = new FogueteJA();
+                objFoguete.setCodFoguete(rs.getInt("codFoguete"));
+                objFoguete.setNomeFoguete(rs.getString("nomeFoguete"));
+                objFoguete.setMaximoCombustivel(rs.getFloat("maximoCombustivel"));
+                objFoguete.setQuantCombustivel(rs.getFloat("quantCombustivel"));
+                objFoguete.setVelocidade(rs.getDouble("velocidade"));
+                objFoguete.setStatus(rs.getInt("status"));
+                listaFoguete.add(objFoguete);
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro de SQL ao inserir: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro de SQL " + ex.getMessage());
+        }
+
+        return listaFoguete;
+    }
+
+    public boolean inserir(FogueteJA f) {
+        String mysql = "INSERT INTO foguete (nomeFoguete, maximoCombustivel, quantCombustivel, velocidade, status) "
+                + "VALUES (?, ?, ?, ?, ?)";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
+            pst.setString(1, f.getNomeFoguete());
+            pst.setFloat(2, f.getMaximoCombustivel());
+            pst.setFloat(3, f.getQuantCombustivel());
+            pst.setDouble(4, f.getVelocidade());
+            pst.setInt(5, f.getStatus());
+
+            int affected = pst.executeUpdate();
+            pst.close();
+
+            return affected > 0;
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao inserir foguete: " + ex.getMessage());
             return false;
         }
     }
 
-    // UPDATE — atualiza apenas os campos editáveis (não altera quantCombustivel nem status)
-    public boolean alterar(FogueteJA objFoguete) {
-        String sql = "UPDATE Foguete SET nomeFoguete=?, maximoCombustivel=?, velocidade=? WHERE codFoguete=?";
+    public boolean alterar(FogueteJA f) {
+        String mysql = "update foguete set nomeFoguete = ?, maximoCombustivel = ?, quantCombustivel = ?, velocidade = ?, status = ? "
+                + "where codFoguete = ?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setString(1, objFoguete.getNomeFoguete());
-            pst.setFloat(2, objFoguete.getMaximoCombustivel());
-            pst.setDouble(3, objFoguete.getVelocidade());
-            pst.setInt(4, objFoguete.getCodFoguete());
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setString(1, f.getNomeFoguete());
+            pst.setFloat(2, f.getMaximoCombustivel());
+            pst.setFloat(3, f.getQuantCombustivel());
+            pst.setDouble(4, f.getVelocidade());
+            pst.setInt(5, f.getStatus());
+            pst.setInt(6, f.getCodFoguete());
 
             if (pst.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "Foguete alterado com sucesso!");
                 return true;
             } else {
-                JOptionPane.showMessageDialog(null, "Foguete não alterado!");
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
                 return false;
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro de SQL ao alterar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
             return false;
         }
     }
 
-    // DELETE por codigo
-    public boolean deletar(int codFoguete) {
-        String sql = "DELETE FROM Foguete WHERE codFoguete = ?";
+    public boolean salvar(FogueteJA objFoguete) {
+        if (objFoguete.getCodFoguete() == 0) {
+            return inserir(objFoguete);
+        } else {
+            return alterar(objFoguete);
+        }
+    }
+
+    public boolean remover(FogueteJA objFoguete) {
+        String mysql = "delete from foguete where codFoguete = ?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, codFoguete);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, objFoguete.getCodFoguete());
+
             if (pst.executeUpdate() > 0) {
-                JOptionPane.showMessageDialog(null, "Foguete deletado com sucesso!");
+                JOptionPane.showMessageDialog(null, "Foguete apagado com sucesso!");
                 return true;
             } else {
-                JOptionPane.showMessageDialog(null, "Foguete não encontrado!");
+                JOptionPane.showMessageDialog(null, "Erro: chave não encontrada!");
                 return false;
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro de SQL ao deletar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro em MySQL " + ex.getMessage());
             return false;
         }
     }
 
-    // getLista (exemplo)
-    public List<FogueteJA> getLista() {
-        String sql = "SELECT * FROM Foguete";
-        List<FogueteJA> listaFoguete = new ArrayList<>();
+    public FogueteJA localizarFoguete(int codigoFoguete) {
+        String mysql = "select * from foguete where codFoguete = ?";
+        FogueteJA objFoguete = new FogueteJA();
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, codigoFoguete);
             ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                FogueteJA obj = new FogueteJA();
-                obj.setCodFoguete(rs.getInt("codFoguete"));
-                obj.setNomeFoguete(rs.getString("nomeFoguete"));
-                obj.setMaximoCombustivel(rs.getFloat("maximoCombustivel"));
-                obj.setQuantCombustivel(rs.getFloat("quantCombustivel"));
-                obj.setVelocidade(rs.getDouble("velocidade"));
-                obj.setStatus(rs.getInt("status"));
-                listaFoguete.add(obj);
-            }
-            rs.close();
-            // pst.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro de SQL (getLista): " + ex.getMessage());
-        }
-        return listaFoguete;
-    }
 
-    public List<String> listarNomesFoguetes() {
-        List<String> nomes = new ArrayList<>();
-        String sql = "SELECT nomeFoguete FROM foguete ORDER BY nomeFoguete";
-
-        try (Connection conn = ConexaoBD.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql);
-                ResultSet rs = pst.executeQuery()) {
-
-            while (rs.next()) {
-                nomes.add(rs.getString("nomeFoguete"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return nomes;
-    }
-
-    public Integer buscarCodPorNome(String nomeFoguete) {
-        String sql = "SELECT codFoguete FROM foguete WHERE nomeFoguete = ?";
-        try (Connection conn = ConexaoBD.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, nomeFoguete);
-            ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return rs.getInt("codFoguete");
+                objFoguete.setCodFoguete(rs.getInt("codFoguete"));
+                objFoguete.setNomeFoguete(rs.getString("nomeFoguete"));
+                objFoguete.setMaximoCombustivel(rs.getFloat("maximoCombustivel"));
+                objFoguete.setQuantCombustivel(rs.getFloat("quantCombustivel"));
+                objFoguete.setVelocidade(rs.getDouble("velocidade"));
+                objFoguete.setStatus(rs.getInt("status"));
+                return objFoguete;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL no método localizarFoguete " + ex.getMessage());
         }
+
         return null;
     }
 

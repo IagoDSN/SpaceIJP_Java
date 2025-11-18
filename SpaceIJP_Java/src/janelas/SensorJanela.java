@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class SensorJanela extends javax.swing.JFrame {
+public class SensorJanela extends javax.swing.JDialog {
 
     private SensorDAO SensorDao = new SensorDAO();
     List<SensoresJA> listaSensores = SensorDao.getLista();

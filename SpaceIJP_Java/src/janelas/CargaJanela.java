@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  *
  * @author Iagod
  */
-public class CargaJanela extends javax.swing.JFrame {
+public class CargaJanela extends javax.swing.JDialog {
 
     private CargaDAO CargaDao = new CargaDAO();
     List<CargaJA> listasCargas = CargaDao.getLista();

@@ -5,99 +5,119 @@
  */
 package Script;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import DAObd.ConexaoBD;
+import java.sql.*;
+import java.util.*;
+import javax.swing.*;
 import java.math.BigDecimal;
-
 /**
  *
  * @author Iagod
  */
 public class UsuarioDAO {
-  public void inserirUsuario(UsuarioJA usuario) {
-        String sql = "INSERT INTO usuario (NomeUsuario, Dinheiro, primeiraVez) VALUES (?, ?, ?)";
-        try (Connection conn = ConexaoBD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, usuario.getNomeUsuario());
-            stmt.setBigDecimal(2, usuario.getDinheiro());
-            stmt.setInt(3, usuario.getPrimeiraVez());
-            stmt.executeUpdate();
-            System.out.println("Usuário inserido com sucesso!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Listar todos os usuários
-    public List<UsuarioJA> listarUsuarios() {
-        List<UsuarioJA> lista = new ArrayList<>();
+  public List<UsuarioJA> getLista() {
         String sql = "SELECT * FROM usuario";
-        try (Connection conn = ConexaoBD.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        List<UsuarioJA> listaUsuario = new ArrayList<>();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 UsuarioJA u = new UsuarioJA();
                 u.setCodUsuario(rs.getInt("codUsuario"));
                 u.setNomeUsuario(rs.getString("NomeUsuario"));
                 u.setDinheiro(rs.getBigDecimal("Dinheiro"));
                 u.setPrimeiraVez(rs.getInt("primeiraVez"));
-                lista.add(u);
+                listaUsuario.add(u);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao listar usuários: " + ex.getMessage());
         }
-        return lista;
+        return listaUsuario;
     }
 
-    // Atualizar usuário
-    public void atualizarUsuario(UsuarioJA usuario) {
+    public boolean inserir(UsuarioJA u) {
+        String sql = "INSERT INTO usuario (NomeUsuario, Dinheiro, primeiraVez) VALUES (?, ?, ?)";
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            pst.setString(1, u.getNomeUsuario());
+            pst.setBigDecimal(2, u.getDinheiro());
+            pst.setInt(3, u.getPrimeiraVez());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Usuário não cadastrado!");
+                return false;
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao inserir usuário: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean alterar(UsuarioJA u) {
         String sql = "UPDATE usuario SET NomeUsuario=?, Dinheiro=?, primeiraVez=? WHERE codUsuario=?";
-        try (Connection conn = ConexaoBD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, usuario.getNomeUsuario());
-            stmt.setBigDecimal(2, usuario.getDinheiro());
-            stmt.setInt(3, usuario.getPrimeiraVez());
-            stmt.setInt(4, usuario.getCodUsuario());
-            stmt.executeUpdate();
-            System.out.println("Usuário atualizado com sucesso!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            pst.setString(1, u.getNomeUsuario());
+            pst.setBigDecimal(2, u.getDinheiro());
+            pst.setInt(3, u.getPrimeiraVez());
+            pst.setInt(4, u.getCodUsuario());
 
-    // Deletar usuário
-    public void deletarUsuario(int codUsuario) {
-        String sql = "DELETE FROM usuario WHERE codUsuario=?";
-        try (Connection conn = ConexaoBD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, codUsuario);
-            stmt.executeUpdate();
-            System.out.println("Usuário deletado com sucesso!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Buscar usuário por ID
-    public UsuarioJA buscarPorId(int codUsuario) {
-        String sql = "SELECT * FROM usuario WHERE codUsuario=?";
-        try (Connection conn = ConexaoBD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, codUsuario);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new UsuarioJA(
-                        rs.getInt("codUsuario"),
-                        rs.getString("NomeUsuario"),
-                        rs.getBigDecimal("Dinheiro"),
-                        rs.getInt("primeiraVez")
-                );
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Usuário alterado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Usuário não encontrado para alteração!");
+                return false;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao alterar usuário: " + ex.getMessage());
+            return false;
         }
+    }
+
+    public boolean remover(UsuarioJA u) {
+        String sql = "DELETE FROM usuario WHERE codUsuario=?";
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            pst.setInt(1, u.getCodUsuario());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Usuário removido com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Usuário não encontrado!");
+                return false;
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao remover usuário: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public UsuarioJA localizarUsuario(int codigoUsuario) {
+        String sql = "SELECT * FROM usuario WHERE codUsuario=?";
+        UsuarioJA u = new UsuarioJA();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            pst.setInt(1, codigoUsuario);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                u.setCodUsuario(rs.getInt("codUsuario"));
+                u.setNomeUsuario(rs.getString("NomeUsuario"));
+                u.setDinheiro(rs.getBigDecimal("Dinheiro"));
+                u.setPrimeiraVez(rs.getInt("primeiraVez"));
+                return u;
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao localizar usuário: " + ex.getMessage());
+        }
+
         return null;
     }
 }  

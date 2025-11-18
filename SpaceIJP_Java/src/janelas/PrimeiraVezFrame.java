@@ -153,7 +153,7 @@ public class PrimeiraVezFrame extends JDialog {
         }
 
         // atualiza no BD (assegure que atualizarUsuario faz preparedstatement correto)
-        usuarioDao.atualizarUsuario(usuario);
+        usuarioDao.alterar(usuario);
 
         JOptionPane.showMessageDialog(this, "Bem-vindo, " + nome + "!");
         dispose(); // fecha o diálogo — o chamador (Main) pode prosseguir

@@ -16,34 +16,69 @@ import javax.swing.JOptionPane;
  */
 public class CargaDAO {
 
+public List<CargaJA> getLista() {
+    String mysql = "SELECT * FROM carga";
+    List<CargaJA> listaCargas = new ArrayList<>();
+    
+    try {
+        PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+        ResultSet rs = pst.executeQuery();
+        
+        FogueteDao objFogueteDao = new FogueteDao();
+        
+        while (rs.next()) {
+            CargaJA objCarga = new CargaJA();
+            
+            objCarga.setCodCarga(rs.getInt("codCarga"));
+            objCarga.setTipo(rs.getString("tipo"));
+            objCarga.setQuantidade(rs.getInt("quant"));
+            objCarga.setPeso(rs.getDouble("peso"));
+            objCarga.setDescricao(rs.getString("descricao"));
+            
+            int codFoguete = rs.getInt("Foguete_codFoguete");
+            objCarga.setObjFoguete(objFogueteDao.localizarFoguete(codFoguete));
+            
+            listaCargas.add(objCarga);
+        }
+        
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, 
+            "Erro de SQL na classe CargaDAO no método getLista: " + ex.getMessage());
+    }
+    
+    return listaCargas;
+}
+
     public boolean inserir(CargaJA c) {
-        String sql = "INSERT INTO carga (tipo, quant, peso, descricao, Foguete_codFoguete) VALUES (?, ?, ?, ?, ?)";
+        String mysql = "INSERT INTO carga (tipo, quant, peso, descricao, Foguete_codFoguete) VALUES (?, ?, ?, ?, ?)";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             pst.setString(1, c.getTipo());
             pst.setInt(2, c.getQuantidade());
             pst.setDouble(3, c.getPeso());
             pst.setString(4, c.getDescricao());
             pst.setInt(5, c.getFogueteCodFoguete());
 
-            int affected = pst.executeUpdate();
-
-            ResultSet rs = pst.getGeneratedKeys();
-            if (rs.next()) {
-                c.setCodCarga(rs.getInt(1));
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Carga cadastrada com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao cadastrar carga!");
+                return false;
             }
 
-            return affected > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir carga: " + e.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL na classe CargaDAO no método inserir: " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
     public boolean alterar(CargaJA c) {
-        String sql = "UPDATE carga SET tipo=?, quant=?, peso=?, descricao=?, Foguete_codFoguete=? WHERE codcarga=?";
+        String mysql = "UPDATE carga SET tipo=?, quant=?, peso=?, descricao=?, Foguete_codFoguete=? WHERE codCarga=?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             pst.setString(1, c.getTipo());
             pst.setInt(2, c.getQuantidade());
             pst.setDouble(3, c.getPeso());
@@ -51,51 +86,68 @@ public class CargaDAO {
             pst.setInt(5, c.getFogueteCodFoguete());
             pst.setInt(6, c.getCodCarga());
 
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar carga: " + e.getMessage());
-        }
-        return false;
-    }
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Carga alterada com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: carga não encontrada para alteração!");
+                return false;
+            }
 
-    public boolean remover(int codCarga) {
-        String sql = "DELETE FROM carga WHERE codcarga=?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, codCarga);
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao remover carga: " + e.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL na classe CargaDAO no método alterar: " + ex.getMessage());
             return false;
         }
     }
 
-    public List<CargaJA> getLista() {
-        List<CargaJA> lista = new ArrayList<>();
-        String sql = "SELECT c.codcarga, c.tipo, c.quant, c.peso, c.descricao, "
-                + "c.Foguete_codFoguete, f.nomeFoguete "
-                + "FROM carga c "
-                + "INNER JOIN foguete f ON c.Foguete_codFoguete = f.codFoguete";
+    public boolean salvar(CargaJA c) {
+        if (c.getCodCarga() == 0) {
+            return inserir(c);
+        } else {
+            return alterar(c);
+        }
+    }
+
+    public boolean remover(CargaJA c) {
+        String mysql = "DELETE FROM carga WHERE codCarga=?";
 
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            ResultSet rs = pst.executeQuery();
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, c.getCodCarga());
 
-            while (rs.next()) {
-                CargaJA c = new CargaJA();
-                c.setCodCarga(rs.getInt("codcarga"));
-                c.setTipo(rs.getString("tipo"));
-                c.setQuantidade(rs.getInt("quant"));
-                c.setPeso(rs.getDouble("peso"));
-                c.setDescricao(rs.getString("descricao"));
-                c.setFogueteCodFoguete(rs.getInt("Foguete_codFoguete"));
-                c.setFogueteNome(rs.getString("nomeFoguete"));
-                lista.add(c);
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Carga removida com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: carga não encontrada para remoção!");
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar cargas: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro de SQL na classe CargaDAO no método remover: " + ex.getMessage());
+            return false;
+        }
+    }
+    public FogueteJA localizarFoguete(int codFoguete) {
+    String mysql = "SELECT codFoguete, nomeFoguete FROM foguete WHERE codFoguete = ?";
+    FogueteJA objFoguete = null;
+
+    try {
+        PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+        pst.setInt(1, codFoguete);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            objFoguete = new FogueteJA();
+            objFoguete.setCodFoguete(rs.getInt("codFoguete"));
+            objFoguete.setNomeFoguete(rs.getString("nomeFoguete"));
         }
 
-        return lista;
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null,
+            "Erro de SQL na classe FogueteDAO no método localizarFoguete: " + ex.getMessage());
     }
+
+    return objFoguete;
+}
 }

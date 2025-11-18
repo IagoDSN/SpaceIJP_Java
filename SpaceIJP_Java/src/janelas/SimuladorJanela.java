@@ -12,7 +12,7 @@ import java.awt.*;
  *
  * @author Iagod
  */
-public class SimuladorJanela extends javax.swing.JFrame {
+public class SimuladorJanela extends javax.swing.JDialog {
 
     public SimuladorJanela() {
         

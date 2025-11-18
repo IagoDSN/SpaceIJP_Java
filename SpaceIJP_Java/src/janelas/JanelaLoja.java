@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Iagod
  */
-public class JanelaLoja extends javax.swing.JFrame {
+public class JanelaLoja extends javax.swing.JDialog {
 
     private UsuarioDAO usuarioDao = new UsuarioDAO();
     private UsuarioJA usuario;
@@ -33,7 +33,7 @@ public class JanelaLoja extends javax.swing.JFrame {
     }
 
     private void atualizaDinheiro() {
-        usuario = usuarioDao.buscarPorId(1);
+        usuario = usuarioDao.localizarUsuario(1);
         if (usuario != null) {
             DecimalFormat df = new DecimalFormat("#,###,###,###");
             String dinheiroFormatado = df.format(usuario.getDinheiro());
