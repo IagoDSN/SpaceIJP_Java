@@ -56,7 +56,7 @@ public class DestinoDAO {
 
             int affected = pst.executeUpdate();
 
-            pst.close(); // FECHA SEM ITAR KEYS
+            pst.close(); 
 
             if (affected > 0) {
                 return true;

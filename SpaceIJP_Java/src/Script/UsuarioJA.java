@@ -15,7 +15,7 @@ public class UsuarioJA {
     private int codUsuario;
     private String nomeUsuario;
     private BigDecimal dinheiro;
-    private int primeiraVez; // 0 ou 1
+    private int primeiraVez; // 0 ou tier1 = 1 tier2 = 2 tier3 = 3
 
     public UsuarioJA() {
         System.out.println("Usuario Criado");

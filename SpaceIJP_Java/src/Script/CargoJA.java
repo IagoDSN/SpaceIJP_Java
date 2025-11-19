@@ -14,7 +14,6 @@ public class CargoJA {
     private String nomeCargo;
     private Float salarioInicial;
 
-    // Getters e Setters
     public int getCodCargo() {
         return codCargo;
     }

@@ -5,97 +5,131 @@
  */
 package Script;
 
-import DAObd.ConexaoBD;
 import java.sql.*;
 import java.util.*;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import DAObd.ConexaoBD;
 
 /**
  *
  * @author Iagod
  */
-
 public class SensorDAO {
 
-    public List<SensoresJA> getLista() {
-    List<SensoresJA> listaSensor = new ArrayList<>();
-    String sql = "SELECT s.codSensores, s.tipo, s.unidade, s.position, " +
-                 "s.Foguete_codFoguete, f.nomeFoguete " +
-                 "FROM sensores s " +
-                 "INNER JOIN foguete f ON s.Foguete_codFoguete = f.codFoguete";
+    FogueteDao objFogueteDao = new FogueteDao();
 
-    try {
-        PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-        ResultSet rs = pst.executeQuery();
-        while (rs.next()) {
-            SensoresJA s = new SensoresJA();
-            s.setCodSensores(rs.getInt("codSensores"));
-            s.setTipo(rs.getString("tipo"));
-            s.setUnidade(rs.getString("unidade"));
-            s.setPosition(rs.getString("position"));
-            s.setFogueteCodFoguete(rs.getInt("Foguete_codFoguete"));
-            s.setFogueteNome(rs.getString("nomeFoguete")); // novo campo no model
-            listaSensor.add(s);
+    public List<SensoresJA> getLista() {
+        String mysql = "SELECT * FROM sensores";
+        List<SensoresJA> listaSensores = new ArrayList<>();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                SensoresJA objSensor = new SensoresJA();
+
+                objSensor.setCodSensores(rs.getInt("codSensores"));
+                objSensor.setTipo(rs.getString("tipo"));
+                objSensor.setUnidade(rs.getString("unidade"));
+                objSensor.setPosition(rs.getString("position"));
+
+                int codFoguete = rs.getInt("Foguete_codFoguete");
+                objSensor.setObjFoguete(objFogueteDao.localizarFoguete(codFoguete));
+
+                listaSensores.add(objSensor);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe SensorDAO no método getLista: " + ex.getMessage());
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Erro ao listar sensores: " + e.getMessage());
+
+        return listaSensores;
     }
 
-    return listaSensor;
-}
-
-
     public boolean inserir(SensoresJA s) {
-        String sql = "INSERT INTO sensores (tipo, unidade, position, Foguete_codFoguete) VALUES (?, ?, ?, ?)";
+        String mysql = "INSERT INTO sensores (tipo, unidade, position, Foguete_codFoguete) "
+                + "VALUES (?, ?, ?, ?)";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
             pst.setString(1, s.getTipo());
             pst.setString(2, s.getUnidade());
             pst.setString(3, s.getPosition());
-            pst.setInt(4, s.getFogueteCodFoguete());
+            pst.setInt(4, s.getObjFoguete().getCodFoguete());
 
             if (pst.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "Sensor cadastrado com sucesso!");
                 return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Sensor não cadastrado!");
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir sensor: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe SensorDAO no método inserir: " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
     public boolean alterar(SensoresJA s) {
-        String sql = "UPDATE sensores SET tipo=?, unidade=?, position=?, Foguete_codFoguete=? WHERE codSensores=?";
+        String mysql = "UPDATE sensores SET tipo=?, unidade=?, position=?, Foguete_codFoguete=? "
+                + "WHERE codSensores=?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
             pst.setString(1, s.getTipo());
             pst.setString(2, s.getUnidade());
             pst.setString(3, s.getPosition());
-            pst.setInt(4, s.getFogueteCodFoguete());
+            pst.setInt(4, s.getObjFoguete().getCodFoguete());
             pst.setInt(5, s.getCodSensores());
 
             if (pst.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(null, "Sensor alterado com sucesso!");
                 return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: sensor não encontrado para alteração!");
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar sensor: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe SensorDAO no método alterar: " + ex.getMessage());
+            return false;
         }
-        return false;
     }
 
-    public boolean deletar(int codSensores) {
-        String sql = "DELETE FROM sensores WHERE codSensores=?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, codSensores);
-            if (pst.executeUpdate() > 0) {
-                JOptionPane.showMessageDialog(null, "Sensor deletado com sucesso!");
-                return true;
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao deletar sensor: " + e.getMessage());
+    public boolean salvar(SensoresJA s) {
+        if (s.getCodSensores() == null || s.getCodSensores() == 0) {
+            return inserir(s);
+        } else {
+            return alterar(s);
         }
-        return false;
+    }
+
+    public boolean remover(SensoresJA s) {
+        String mysql = "DELETE FROM sensores WHERE codSensores=?";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, s.getCodSensores());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Sensor removido com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: sensor não encontrado para remoção!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe SensorDAO no método remover: " + ex.getMessage());
+            return false;
+        }
     }
 }

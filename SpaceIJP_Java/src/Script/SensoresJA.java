@@ -4,25 +4,24 @@
  * and open the template in the editor.
  */
 package Script;
-
 /**
  *
  * @author Iagod
  */
+public class SensoresJA {
 
-public class  SensoresJA{
-    private int codSensores;
+    private Integer codSensores;
     private String tipo;
     private String unidade;
     private String position;
-    private int fogueteCodFoguete;
-    private String fogueteNome;
 
-    public int getCodSensores() {
+    private FogueteJA objFoguete;
+
+    public Integer getCodSensores() {
         return codSensores;
     }
 
-    public void setCodSensores(int codSensores) {
+    public void setCodSensores(Integer codSensores) {
         this.codSensores = codSensores;
     }
 
@@ -50,20 +49,16 @@ public class  SensoresJA{
         this.position = position;
     }
 
-    public int getFogueteCodFoguete() {
-        return fogueteCodFoguete;
+    public FogueteJA getObjFoguete() {
+        return objFoguete;
     }
 
-    public void setFogueteCodFoguete(int fogueteCodFoguete) {
-        this.fogueteCodFoguete = fogueteCodFoguete;
+    public void setObjFoguete(FogueteJA objFoguete) {
+        this.objFoguete = objFoguete;
     }
 
-public String getFogueteNome() {
-    return fogueteNome;
-}
-
-public void setFogueteNome(String fogueteNome) {
-    this.fogueteNome = fogueteNome;
-}
-
+    @Override
+    public String toString() {
+        return tipo + " - " + unidade;
+    }
 }

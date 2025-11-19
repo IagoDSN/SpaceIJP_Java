@@ -5,16 +5,14 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
-
-import Script.DestinoDAO;
-import Script.DestinoJA;
 import Script.MissaoDAO;
 import Script.MissaoJA;
+import Script.DestinoDAO;
+import Script.DestinoJA;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import javax.swing.DefaultComboBoxModel;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.ImageIcon;
 
 import javax.swing.JOptionPane;
@@ -26,10 +24,9 @@ import javax.swing.JOptionPane;
 public class MissaoJanela extends javax.swing.JDialog {
 
     private MissaoDAO MissaoDao = new MissaoDAO();
-    List<MissaoJA> listaMissao = MissaoDao.getLista();
-
     private DestinoDAO DestinoDao = new DestinoDAO();
-
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    
     private boolean emEdicao = false;
     private boolean criando = false;
 
@@ -40,7 +37,7 @@ public class MissaoJanela extends javax.swing.JDialog {
     MissaoJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaMissao();
-        configurarComboDestino();
+        carregarDestinos();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -53,37 +50,22 @@ public class MissaoJanela extends javax.swing.JDialog {
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-private void carregarTabelaMissao() {
-    DefaultTableModel modelo = (DefaultTableModel) tabelaMissoes.getModel();
-    modelo.setRowCount(0);
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private void carregarTabelaMissao() {
+        listaMissao.clear();
+        listaMissao.addAll(MissaoDao.getLista());
+        int linha = listaMissao.size() - 1;
 
-    for (MissaoJA f : listaMissao) {
-        String dataInicioStr = f.getDataInicio() != null ? sdf.format(f.getDataInicio()) : "";
-        String dataFimStr = f.getDataFim() != null ? sdf.format(f.getDataFim()) : "";
-        String destinoNome = f.getDestinoNome() != null ? f.getDestinoNome() : "";
-
-        modelo.addRow(new Object[]{
-            f.getCodMissao(),
-            f.getNomeMissao(),
-            f.getObjetivoMissao(),
-            dataInicioStr,
-            dataFimStr,
-            f.getStatus(),
-            destinoNome
-        });
-    }
-}
-
-    private void configurarComboDestino() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        DestinoDAO ddao = new DestinoDAO();
-        List<DestinoJA> destinos = ddao.getLista();
-        for (DestinoJA d : destinos) {
-            modelo.addElement(d);
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
-        cbDestinos.setModel(modelo);
-        cbDestinos.setSelectedIndex(-1);
+    }
+
+    public void carregarDestinos() {
+        cbDestinos.removeAllItems();
+        for (DestinoJA d : new DestinoDAO().getLista()) {
+            cbDestinos.addItem(d);
+        }
     }
 
     private void trataEdicao(boolean status) {
@@ -121,23 +103,6 @@ private void carregarTabelaMissao() {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (MissaoJA f : listaMissao) {
-                if (f.getCodMissao() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -146,14 +111,17 @@ private void carregarTabelaMissao() {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaMissao = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<MissaoJA>());
+        listaDestino = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<DestinoJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaMissoes = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -235,31 +203,39 @@ private void carregarTabelaMissao() {
                 .addGap(16, 16, 16))
         );
 
-        tabelaMissoes.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Nome", "Objetivo", "Data Inicio", "Data Fim", "Status", "Destino"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaMissoes);
-        if (tabelaMissoes.getColumnModel().getColumnCount() > 0) {
-            tabelaMissoes.getColumnModel().getColumn(0).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(1).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(2).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(3).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(4).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(5).setResizable(false);
-            tabelaMissoes.getColumnModel().getColumn(6).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaMissao, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codMissao}"));
+        columnBinding.setColumnName("Cod Missao");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeMissao}"));
+        columnBinding.setColumnName("Nome Missao");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objetivoMissao}"));
+        columnBinding.setColumnName("Objetivo Missao");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataInicio}"));
+        columnBinding.setColumnName("Data Inicio");
+        columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataFim}"));
+        columnBinding.setColumnName("Data Fim");
+        columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${status}"));
+        columnBinding.setColumnName("Status");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objDestino}"));
+        columnBinding.setColumnName("Obj Destino");
+        columnBinding.setColumnClass(Script.DestinoJA.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
+            tabela.getColumnModel().getColumn(5).setResizable(false);
+            tabela.getColumnModel().getColumn(6).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -399,76 +375,46 @@ private void carregarTabelaMissao() {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        criando = true;
-        emEdicao = true;
+        listaMissao.add(new MissaoJA());
+        int linha = listaMissao.size() - 1;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
         trataEdicao(true);
-
-        inputCodigo.setText("0");
-        inputNome.setText("");
-        inputObjetivo.setText("");
-        inputFim.setText("");
-        inputStatus.setText("");
-        inputInicio.setText("");
-        cbDestinos.setSelectedIndex(-1);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaMissoes.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma Missao!");
-            return;
-        }
-
-        MissaoJA f = listaMissao.get(linha);
-
-        inputCodigo.setText(String.valueOf(f.getCodMissao()));
-        inputNome.setText(f.getNomeMissao());
-        inputObjetivo.setText(f.getObjetivoMissao());
-        if(f.getDataInicio() != null){
-        inputInicio.setText(new SimpleDateFormat("dd/MM/yyyy").format(f.getDataInicio()));
-        }
-        if(f.getDataFim() != null){
-        inputFim.setText(new SimpleDateFormat("dd/MM/yyyy").format(f.getDataFim()));
-        }
-        inputStatus.setText(f.getStatus());
-
-        for (int i = 0; i < cbDestinos.getItemCount(); i++) {
-            Object obj = cbDestinos.getModel().getElementAt(i);
-            if (obj instanceof DestinoJA) {
-                DestinoJA destino = (DestinoJA) obj;
-                if (destino.getCodDestino() == f.getDestinoCodDestino()) {
-                    cbDestinos.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-
-        criando = false;
-        emEdicao = true;
         trataEdicao(true);
+        inputNome.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaMissoes.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma Missao para deletar!");
-        return;
-    }
-    MissaoJA f = listaMissao.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Missao " + f.getNomeMissao() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-    boolean ok = MissaoDao.remover(f.getCodMissao());
-    if (ok) {
-        listaMissao.remove(linha);
-        carregarTabelaMissao();
-    }
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            MissaoJA objCarga = listaMissao.get(linhaSelecionada);
+            MissaoDao.remover(objCarga);
+
+            carregarTabelaMissao();
+            trataEdicao(false);
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
@@ -478,85 +424,35 @@ private void carregarTabelaMissao() {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) {
-            return;
-        }
+        if (validaCampos()) {
+            trataEdicao(false);
 
-        int linha = tabelaMissoes.getSelectedRow();
-        MissaoJA f;
+            int linhaSelecionada = tabela.getSelectedRow();
+            MissaoJA objMissao = listaMissao.get(linhaSelecionada);
 
-        if (criando) {
-            f = new MissaoJA();
-        } else {
-            if (linha < 0) {
-                JOptionPane.showMessageDialog(this, "Selecione uma Missão!");
+            objMissao.setNomeMissao(inputNome.getText());
+            objMissao.setObjetivoMissao(inputObjetivo.getText());
+            objMissao.setStatus(inputStatus.getText());
+
+
+            try {
+                Date dataInicio = sdf.parse(inputInicio.getText());
+                Date dataFim = sdf.parse(inputFim.getText());
+
+                objMissao.setDataInicio(dataInicio);
+                objMissao.setDataFim(dataFim);
+
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this,
+                 "Datas inválidas! Use o formato dd/MM/yyyy.");
                 return;
             }
-            f = listaMissao.get(linha);
+            objMissao.setObjDestino((DestinoJA) cbDestinos.getSelectedItem());
+            
+            MissaoDao.salvar(objMissao);
+
+            carregarTabelaMissao();
         }
-
-        if (inputNome.getText().trim().isEmpty() || inputObjetivo.getText().trim().isEmpty() || cbDestinos.getSelectedIndex() < 0) {
-            JOptionPane.showMessageDialog(this, "Preencha nome, objetivo e escolha o destino!");
-            return;
-        }
-
-        f.setNomeMissao(inputNome.getText().trim());
-        f.setObjetivoMissao(inputObjetivo.getText().trim());
-        f.setStatus(inputStatus.getText().trim());
-
-        // Datas
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false);
-
-        try {
-            String textoInicio = inputInicio.getText().trim();
-            if (!textoInicio.isEmpty()) {
-                f.setDataInicio(sdf.parse(textoInicio));
-            } else {
-                f.setDataInicio(null);
-            }
-
-            String textoFim = inputFim.getText().trim();
-            if (!textoFim.isEmpty()) {
-                f.setDataFim(sdf.parse(textoFim));
-            } else {
-                f.setDataFim(null);
-            }
-        } catch (ParseException ex) {
-            JOptionPane.showMessageDialog(this, "Datas inválidas! Use dd/MM/yyyy");
-            return;
-        }
-
-        DestinoJA destinoSelecionado = (DestinoJA) cbDestinos.getSelectedItem();
-        if (destinoSelecionado != null) {
-            f.setDestinoCodDestino(destinoSelecionado.getCodDestino());
-        } else {
-            JOptionPane.showMessageDialog(this, "Escolha um destino válido!");
-            return;
-        }
-
-        boolean ok;
-        if (criando) {
-            ok = MissaoDao.inserir(f);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao cadastrar!");
-                return;
-            }
-        } else {
-            ok = MissaoDao.alterar(f);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao atualizar!");
-                return;
-            }
-        }
-
-        listaMissao = MissaoDao.getLista();
-        carregarTabelaMissao();
-        trataEdicao(false);
-        emEdicao = false;
-        criando = false;
-
-        JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
@@ -564,7 +460,7 @@ private void carregarTabelaMissao() {
         trataEdicao(false);
         emEdicao = false;
         criando = false;
-        tabelaMissoes.clearSelection();
+        tabela.clearSelection();
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -606,7 +502,7 @@ private void carregarTabelaMissao() {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbDestinos;
+    private javax.swing.JComboBox<DestinoJA> cbDestinos;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCodigo;
     private javax.swing.JTextField inputFim;
@@ -623,8 +519,11 @@ private void carregarTabelaMissao() {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<DestinoJA> listaDestino;
+    private java.util.List<MissaoJA> listaMissao;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaMissoes;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

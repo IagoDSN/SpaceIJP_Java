@@ -14,20 +14,20 @@ import java.util.Date;
 
 public class MissaoJA {
 
-    private int codMissao;
+    private Integer codMissao;
     private String nomeMissao;
     private String objetivoMissao;
     private Date dataInicio;
     private Date dataFim;
     private String status;
-    private int destinoCodDestino;
-    private String destinoNome;
 
-    public int getCodMissao() {
+    private DestinoJA objDestino;
+
+    public Integer getCodMissao() {
         return codMissao;
     }
 
-    public void setCodMissao(int codMissao) {
+    public void setCodMissao(Integer codMissao) {
         this.codMissao = codMissao;
     }
 
@@ -71,28 +71,16 @@ public class MissaoJA {
         this.status = status;
     }
 
-    public int getDestinoCodDestino() {
-        return destinoCodDestino;
+    public DestinoJA getObjDestino() {
+        return objDestino;
     }
 
-    public void setDestinoCodDestino(int destinoCodDestino) {
-        this.destinoCodDestino = destinoCodDestino;
-    }
-
-    public String getDestinoNome() {
-        return destinoNome;
-    }
-
-    public void setDestinoNome(String destinoNome) {
-        this.destinoNome = destinoNome;
+    public void setObjDestino(DestinoJA objDestino) {
+        this.objDestino = objDestino;
     }
 
     @Override
     public String toString() {
         return nomeMissao;
-    }
-
-    public void setCodDestino(DestinoJA destinoSelecionado) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

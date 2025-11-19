@@ -4,26 +4,27 @@
  * and open the template in the editor.
  */
 package Script;
-
 /**
  *
  * @author Iagod
  */
 public class CargaJA {
-    private int codCarga;
+    private Integer codCarga;
     private String tipo;
-    private int quantidade;
-    private double peso;
+    private Integer quantidade;
+    private Double peso;
     private String descricao;
-    private int fogueteCodFoguete;
-    private String fogueteNome;
 
-    // Getters e Setters
-    public int getCodCarga() {
+    private FogueteJA objFoguete;
+
+    public CargaJA() {
+    }
+
+    public Integer getCodCarga() {
         return codCarga;
     }
 
-    public void setCodCarga(int codCarga) {
+    public void setCodCarga(Integer codCarga) {
         this.codCarga = codCarga;
     }
 
@@ -35,20 +36,19 @@ public class CargaJA {
         this.tipo = tipo;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
-    
 
-    public double getPeso() {
+    public Double getPeso() {
         return peso;
     }
 
-    public void setPeso(double peso) {
+    public void setPeso(Double peso) {
         this.peso = peso;
     }
 
@@ -60,20 +60,12 @@ public class CargaJA {
         this.descricao = descricao;
     }
 
-    public int getFogueteCodFoguete() {
-        return fogueteCodFoguete;
+    public FogueteJA getObjFoguete() {
+        return objFoguete;
     }
 
-    public void setFogueteCodFoguete(int fogueteCodFoguete) {
-        this.fogueteCodFoguete = fogueteCodFoguete;
-    }
-
-    public String getFogueteNome() {
-        return fogueteNome;
-    }
-
-    public void setFogueteNome(String fogueteNome) {
-        this.fogueteNome = fogueteNome;
+    public void setObjFoguete(FogueteJA objFoguete) {
+        this.objFoguete = objFoguete;
     }
 
     @Override

@@ -5,16 +5,12 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
-
 import Script.CargaDAO;
 import Script.CargaJA;
 import Script.FogueteDao;
 import Script.FogueteJA;
-import javax.swing.DefaultComboBoxModel;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
-
 import javax.swing.JOptionPane;
 
 /**
@@ -24,7 +20,6 @@ import javax.swing.JOptionPane;
 public class CargaJanela extends javax.swing.JDialog {
 
     private CargaDAO CargaDao = new CargaDAO();
-    List<CargaJA> listasCargas = CargaDao.getLista();
     private FogueteDao fogueteDao = new FogueteDao();
 
     private boolean emEdicao = false;
@@ -36,8 +31,8 @@ public class CargaJanela extends javax.swing.JDialog {
 
     CargaJanela(Main aThis, boolean b) {
         initComponents();
-        carregarTabelaSensores();
-        configurarComboFoguetes();
+        carregarTabelaCargas();
+        carregarFoguetes();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -49,30 +44,22 @@ public class CargaJanela extends javax.swing.JDialog {
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-    private void carregarTabelaSensores() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaCarga.getModel();
-        modelo.setRowCount(0);
-        for (CargaJA c : listasCargas) {
-            modelo.addRow(new Object[]{
-                c.getCodCarga(),
-                c.getTipo(),
-                c.getQuantidade(),
-                c.getPeso(),
-                c.getDescricao(),
-                c.getFogueteNome()
-            });
+    private void carregarTabelaCargas() {
+        listasCargas.clear();
+        listasCargas.addAll(CargaDao.getLista());
+        int linha = listasCargas.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
 
-    private void configurarComboFoguetes() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        FogueteDao fdao = new FogueteDao();
-        List<FogueteJA> foguetes = fdao.getLista();
-        for (FogueteJA f : foguetes) {
-            modelo.addElement(f);
-        }
-        cbFoguetes.setModel(modelo);
-        cbFoguetes.setSelectedIndex(-1);
+    public void carregarFoguetes() {
+        cbFoguetes.removeAllItems();
+    for (FogueteJA f : new FogueteDao().getLista()) {
+        cbFoguetes.addItem(f);
+    }
     }
 
     private void trataEdicao(boolean status) {
@@ -119,23 +106,6 @@ public class CargaJanela extends javax.swing.JDialog {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (CargaJA c : listasCargas) {
-                if (c.getCodCarga() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -144,14 +114,17 @@ public class CargaJanela extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listasCargas = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<CargaJA>());
+        listaFoguetes = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<FogueteJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaCarga = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -231,30 +204,35 @@ public class CargaJanela extends javax.swing.JDialog {
                 .addGap(16, 16, 16))
         );
 
-        tabelaCarga.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "tipo", "Quantidade", "Peso", "Descrição", "foguete"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaCarga);
-        if (tabelaCarga.getColumnModel().getColumnCount() > 0) {
-            tabelaCarga.getColumnModel().getColumn(0).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(1).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(2).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(3).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(4).setResizable(false);
-            tabelaCarga.getColumnModel().getColumn(5).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listasCargas, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codCarga}"));
+        columnBinding.setColumnName("Cod Carga");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${tipo}"));
+        columnBinding.setColumnName("Tipo");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${quantidade}"));
+        columnBinding.setColumnName("Quantidade");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${peso}"));
+        columnBinding.setColumnName("Peso");
+        columnBinding.setColumnClass(Double.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${descricao}"));
+        columnBinding.setColumnName("Descricao");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objFoguete}"));
+        columnBinding.setColumnName("Obj Foguete");
+        columnBinding.setColumnClass(Script.FogueteJA.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
+            tabela.getColumnModel().getColumn(5).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -381,191 +359,80 @@ public class CargaJanela extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        CargaJA c = new CargaJA();
-        c.setCodCarga(0);
-        c.setTipo("");
-        c.setQuantidade(0);
-        c.setPeso(0);
-        c.setDescricao("");
-        c.setFogueteCodFoguete(0);
-
-        listasCargas.add(c);
-        carregarTabelaSensores();
-
+        listasCargas.add(new CargaJA());
         int linha = listasCargas.size() - 1;
-        if (linha >= 0) {
-            tabelaCarga.setRowSelectionInterval(linha, linha);
-        }
-
-        inputCodigo.setText("0");
-        inputTipo.setText("");
-        inQuantidade.setText("");
-        inputPeso.setText("");
-        inputDescricao.setText("");
-        cbFoguetes.setSelectedIndex(-1);
-
-        criando = true;
-        emEdicao = true;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
         trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaCarga.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
-            return;
-        }
-
-        CargaJA c = listasCargas.get(linha);
-        inputCodigo.setText(String.valueOf(c.getCodCarga()));
-        inputTipo.setText(c.getTipo());
-        inQuantidade.setText(String.valueOf(c.getQuantidade()));
-        inputDescricao.setText(c.getDescricao());
-        inputPeso.setText(String.valueOf(c.getPeso()));
-
-        for (int i = 0; i < cbFoguetes.getItemCount(); i++) {
-            Object obj = cbFoguetes.getModel().getElementAt(i);
-            if (obj instanceof FogueteJA) {
-                FogueteJA foguete = (FogueteJA) obj;
-                if (foguete.getCodFoguete() == c.getFogueteCodFoguete()) {
-                    cbFoguetes.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-
-        criando = false;
-        emEdicao = true;
         trataEdicao(true);
+        inputTipo.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaCarga.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma carga para remover.");
-            return;
-        }
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-        CargaJA c = listasCargas.get(linha);
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            CargaJA objCarga = listasCargas.get(linhaSelecionada);
+            CargaDao.remover(objCarga);
 
-        int resposta = JOptionPane.showConfirmDialog(this,
-                "Deseja realmente remover a Carga \"" + c.getTipo() + "\"?",
-                "Confirmação", JOptionPane.YES_NO_OPTION);
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            CargaDAO dao = new CargaDAO();
-            if (dao.remover(c.getCodCarga())) {
-                JOptionPane.showMessageDialog(this, "Carga removida com sucesso!");
-                listasCargas.remove(c);
-                carregarTabelaSensores();
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao remover Carga.");
-            }
+            carregarTabelaCargas();
+            trataEdicao(false);
         }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
         // TODO add your handling code here:
-        carregarTabelaSensores();
+        carregarTabelaCargas();
     }//GEN-LAST:event_atualizarActionPerformed
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) {
-            return;
+        if (validaCampos()) {
+            trataEdicao(false);
+
+            int linhaSelecionada = tabela.getSelectedRow();
+            CargaJA objCarga = listasCargas.get(linhaSelecionada);
+
+            objCarga.setTipo(inputTipo.getText());
+            objCarga.setQuantidade(Integer.parseInt(inQuantidade.getText()));
+            objCarga.setPeso(Double.parseDouble(inputPeso.getText()));
+            objCarga.setDescricao(inputDescricao.getText());
+            objCarga.setObjFoguete((FogueteJA) cbFoguetes.getSelectedItem());
+
+            CargaDao.salvar(objCarga);
+
+            carregarTabelaCargas();
         }
-
-        int linha = tabelaCarga.getSelectedRow();
-        if (!criando && linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
-            return;
-        }
-
-        if (!validaCampos()) {
-            return;
-        }
-
-        CargaJA c;
-        if (criando) {
-            c = listasCargas.get(listasCargas.size() - 1);
-        } else {
-            c = listasCargas.get(linha);
-        }
-
-        c.setTipo(inputTipo.getText().trim());
-        try {
-            c.setPeso(Double.parseDouble(inputPeso.getText().trim()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Peso inválido!");
-            return;
-        }
-        try {
-            c.setQuantidade(Integer.parseInt(inQuantidade.getText().trim()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Quantidade inválida!");
-            return;
-        }
-        c.setDescricao(inputDescricao.getText().trim());
-
-        FogueteJA fogueteSelecionado = (FogueteJA) cbFoguetes.getSelectedItem();
-        if (fogueteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual a Carga pertence!");
-            cbFoguetes.requestFocus();
-            return;
-        }
-        c.setFogueteCodFoguete(fogueteSelecionado.getCodFoguete());
-
-        CargaDAO dao = new CargaDAO();
-        boolean ok;
-
-        if (c.getCodCarga() == 0) {
-            ok = dao.inserir(c);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao cadastrar Carga!");
-                return;
-            }
-            inputCodigo.setText(String.valueOf(c.getCodCarga()));
-        } else { 
-            ok = dao.alterar(c);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Erro ao atualizar Carga!");
-                return;
-            }
-        }
-
-        listasCargas = dao.getLista();
-        carregarTabelaSensores();
-
-        int rowToSelect = -1;
-        for (int i = 0; i < listasCargas.size(); i++) {
-            if (listasCargas.get(i).getCodCarga() == c.getCodCarga()) {
-                rowToSelect = i;
-                break;
-            }
-        }
-        if (rowToSelect >= 0 && rowToSelect < tabelaCarga.getRowCount()) {
-            tabelaCarga.setRowSelectionInterval(rowToSelect, rowToSelect);
-        }
-
-        emEdicao = false;
-        criando = false;
-        trataEdicao(false);
-
-        JOptionPane.showMessageDialog(this, "Carga salva com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
         emEdicao = false;
         criando = false;
+        
+        carregarTabelaCargas();
         trataEdicao(false);
-        carregarTabelaSensores();
     }//GEN-LAST:event_cancelarActionPerformed
 
     private void inQuantidadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inQuantidadeActionPerformed
@@ -611,7 +478,7 @@ public class CargaJanela extends javax.swing.JDialog {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbFoguetes;
+    private javax.swing.JComboBox<FogueteJA> cbFoguetes;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inQuantidade;
     private javax.swing.JTextField inputCodigo;
@@ -626,8 +493,11 @@ public class CargaJanela extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<FogueteJA> listaFoguetes;
+    private java.util.List<CargaJA> listasCargas;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaCarga;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,14 +5,11 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
-
 import Script.SensorDAO;
 import Script.SensoresJA;
 import Script.FogueteDao;
 import Script.FogueteJA;
-import javax.swing.DefaultComboBoxModel;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 import javax.swing.JOptionPane;
@@ -24,7 +21,6 @@ import javax.swing.JOptionPane;
 public class SensorJanela extends javax.swing.JDialog {
 
     private SensorDAO SensorDao = new SensorDAO();
-    List<SensoresJA> listaSensores = SensorDao.getLista();
     private FogueteDao fogueteDao = new FogueteDao();
 
     private boolean emEdicao = false;
@@ -40,7 +36,7 @@ public class SensorJanela extends javax.swing.JDialog {
     SensorJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaSensores();
-        configurarComboFoguetes();
+        carregarFoguetes();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -52,29 +48,21 @@ public class SensorJanela extends javax.swing.JDialog {
     }
 
     private void carregarTabelaSensores() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaSensor.getModel();
-        modelo.setRowCount(0);
-        for (SensoresJA s : listaSensores) {
-            modelo.addRow(new Object[]{
-                s.getCodSensores(),
-                s.getTipo(),
-                s.getUnidade(),
-                s.getPosition(),
-                s.getFogueteNome()
-            });
+        listaSensores.clear();
+        listaSensores.addAll(SensorDao.getLista());
+        int linha = listaSensores.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
 
-    private void configurarComboFoguetes() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        FogueteDao fdao = new FogueteDao();
-        List<FogueteJA> foguetes = fdao.getLista();
-        for (FogueteJA f : foguetes) {
-            modelo.addElement(f);
+    public void carregarFoguetes() {
+        cbFoguetes.removeAllItems();
+        for (FogueteJA f : new FogueteDao().getLista()) {
+            cbFoguetes.addItem(f);
         }
-        cbFoguetes.setModel(modelo);
-        cbFoguetes.setSelectedIndex(-1);
-
     }
 
     private void trataEdicao(boolean status) {
@@ -115,23 +103,6 @@ public class SensorJanela extends javax.swing.JDialog {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (SensoresJA s : listaSensores) {
-                if (s.getCodSensores() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -140,14 +111,17 @@ public class SensorJanela extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaSensores = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<SensoresJA>());
+        listaFoguete = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<FogueteJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaSensor = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -225,29 +199,31 @@ public class SensorJanela extends javax.swing.JDialog {
                 .addGap(16, 16, 16))
         );
 
-        tabelaSensor.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "tipo", "unidade", "posicao", "foguete"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaSensor);
-        if (tabelaSensor.getColumnModel().getColumnCount() > 0) {
-            tabelaSensor.getColumnModel().getColumn(0).setResizable(false);
-            tabelaSensor.getColumnModel().getColumn(1).setResizable(false);
-            tabelaSensor.getColumnModel().getColumn(2).setResizable(false);
-            tabelaSensor.getColumnModel().getColumn(3).setResizable(false);
-            tabelaSensor.getColumnModel().getColumn(4).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaSensores, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codSensores}"));
+        columnBinding.setColumnName("Cod Sensores");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${tipo}"));
+        columnBinding.setColumnName("Tipo");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${unidade}"));
+        columnBinding.setColumnName("Unidade");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${position}"));
+        columnBinding.setColumnName("Position");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objFoguete}"));
+        columnBinding.setColumnName("Obj Foguete");
+        columnBinding.setColumnClass(Script.FogueteJA.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -355,90 +331,45 @@ public class SensorJanela extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        SensoresJA s = new SensoresJA();
-        s.setCodSensores(0);
-        s.setTipo("");
-        s.setUnidade("");
-        s.setPosition("");
-        s.setFogueteCodFoguete(0);
-
-        listaSensores.add(s);
-        carregarTabelaSensores();
-
+        listaSensores.add(new SensoresJA());
         int linha = listaSensores.size() - 1;
-        if (linha >= 0) {
-            tabelaSensor.setRowSelectionInterval(linha, linha);
-        }
-
-        inputCodigo.setText("0");
-        inputTipo.setText("");
-        inputUnidade.setText("");
-        inputPosition.setText("");
-        cbFoguetes.setSelectedIndex(-1);
-
-        criando = true;
-        emEdicao = true;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
         trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaSensor.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
-            return;
-        }
-
-        SensoresJA s = listaSensores.get(linha);
-
-        inputCodigo.setText(String.valueOf(s.getCodSensores()));
-        inputTipo.setText(s.getTipo());
-        inputUnidade.setText(s.getUnidade());
-        inputPosition.setText(s.getPosition());
-        
-        for (int i = 0; i < cbFoguetes.getItemCount(); i++) {
-            Object obj = cbFoguetes.getModel().getElementAt(i);
-            if (obj instanceof FogueteJA) {
-                FogueteJA foguete = (FogueteJA) obj;
-                if (foguete.getCodFoguete() == s.getFogueteCodFoguete()) {
-                    cbFoguetes.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-        
-        criando = false;
-        emEdicao = true;
         trataEdicao(true);
+        inputTipo.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaSensor.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione um sensor para remover.");
-            return;
-        }
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-        SensoresJA s = listaSensores.get(linha);
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            SensoresJA objCarga = listaSensores.get(linhaSelecionada);
+            SensorDao.remover(objCarga);
 
-        int resposta = JOptionPane.showConfirmDialog(this,
-                "Deseja realmente remover o sensor \"" + s.getTipo() + "\"?",
-                "Confirmação", JOptionPane.YES_NO_OPTION);
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            SensorDAO dao = new SensorDAO();
-            if (dao.deletar(s.getCodSensores())) {
-                JOptionPane.showMessageDialog(this, "Sensor removido com sucesso!");
-                listaSensores.remove(s);
-                carregarTabelaSensores();
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao remover sensor.");
-            }
+            carregarTabelaSensores();
+            trataEdicao(false);
         }
     }//GEN-LAST:event_removerActionPerformed
 
@@ -449,74 +380,30 @@ public class SensorJanela extends javax.swing.JDialog {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) {
-            return;
+        if (validaCampos()) {
+            trataEdicao(false);
+
+            int linhaSelecionada = tabela.getSelectedRow();
+            SensoresJA objSensor = listaSensores.get(linhaSelecionada);
+
+            objSensor.setTipo(inputTipo.getText());
+            objSensor.setUnidade(inputUnidade.getText());
+            objSensor.setPosition(inputPosition.getText());
+            objSensor.setObjFoguete((FogueteJA) cbFoguetes.getSelectedItem());
+
+            SensorDao.salvar(objSensor);
+
+            carregarTabelaSensores();
         }
-
-        int linha = tabelaSensor.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
-            return;
-        }
-
-        if (!validaCampos()) {
-            return;
-        }
-
-        SensoresJA s = listaSensores.get(linha);
-
-        s.setTipo(inputTipo.getText().trim());
-        s.setUnidade(inputUnidade.getText().trim());
-        s.setPosition(inputPosition.getText().trim());
-
-        FogueteJA fogueteSelecionado = (FogueteJA) cbFoguetes.getSelectedItem();
-        if (fogueteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual o sensor pertence!");
-            cbFoguetes.requestFocus();
-            return;
-        }
-        s.setFogueteCodFoguete(fogueteSelecionado.getCodFoguete());
-
-        SensorDAO dao = new SensorDAO();
-        boolean ok;
-
-        if (s.getCodSensores() == 0) {
-            ok = dao.inserir(s);
-            if (ok) {
-                inputCodigo.setText(String.valueOf(s.getCodSensores()));
-            }
-        } else {
-            ok = dao.alterar(s);
-        }
-
-        if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar sensor no banco!");
-            return;
-        }
-
-        listaSensores = dao.getLista();
-        carregarTabelaSensores();
-
-        for (int i = 0; i < listaSensores.size(); i++) {
-            if (listaSensores.get(i).getCodSensores() == s.getCodSensores()) {
-                tabelaSensor.setRowSelectionInterval(i, i);
-                break;
-            }
-        }
-
-        emEdicao = false;
-        criando = false;
-        trataEdicao(false);
-
-        JOptionPane.showMessageDialog(this, "Sensor salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
         emEdicao = false;
         criando = false;
-        trataEdicao(false);
+
         carregarTabelaSensores();
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -558,7 +445,7 @@ public class SensorJanela extends javax.swing.JDialog {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbFoguetes;
+    private javax.swing.JComboBox<FogueteJA> cbFoguetes;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCodigo;
     private javax.swing.JTextField inputPosition;
@@ -571,8 +458,11 @@ public class SensorJanela extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<FogueteJA> listaFoguete;
+    private java.util.List<SensoresJA> listaSensores;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaSensor;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
