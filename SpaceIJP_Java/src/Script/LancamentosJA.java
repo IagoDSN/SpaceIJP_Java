@@ -11,23 +11,21 @@ import java.util.Date;
  *
  * @author Iagod
  */
-
 public class LancamentosJA {
 
-    private int codLancamentos;
+    private Integer codLancamento;
     private Date dataLancamento;
     private String resultado;
-    private int fogueteCodFoguete;
-    private int missoesCodMissao;
-    private String fogueteNome;
-    private String missaoNome;
 
-    public int getCodLancamentos() {
-        return codLancamentos;
+    private FogueteJA objFoguete;
+    private MissaoJA objMissao;
+
+    public Integer getCodLancamento() {
+        return codLancamento;
     }
 
-    public void setCodLancamentos(int codLancamentos) {
-        this.codLancamentos = codLancamentos;
+    public void setCodLancamento(Integer codLancamento) {
+        this.codLancamento = codLancamento;
     }
 
     public Date getDataLancamento() {
@@ -46,35 +44,19 @@ public class LancamentosJA {
         this.resultado = resultado;
     }
 
-    public int getFogueteCodFoguete() {
-        return fogueteCodFoguete;
+    public FogueteJA getObjFoguete() {
+        return objFoguete;
     }
 
-    public void setFogueteCodFoguete(int fogueteCodFoguete) {
-        this.fogueteCodFoguete = fogueteCodFoguete;
+    public void setObjFoguete(FogueteJA objFoguete) {
+        this.objFoguete = objFoguete;
     }
 
-    public int getMissoesCodMissao() {
-        return missoesCodMissao;
+    public MissaoJA getObjMissao() {
+        return objMissao;
     }
 
-    public void setMissoesCodMissao(int missoesCodMissao) {
-        this.missoesCodMissao = missoesCodMissao;
-    }
-
-    public String getFogueteNome() {
-        return fogueteNome;
-    }
-
-    public void setFogueteNome(String fogueteNome) {
-        this.fogueteNome = fogueteNome;
-    }
-
-    public String getMissaoNome() {
-        return missaoNome;
-    }
-
-    public void setMissaoNome(String missaoNome) {
-        this.missaoNome = missaoNome;
+    public void setObjMissao(MissaoJA objMissao) {
+        this.objMissao = objMissao;
     }
 }

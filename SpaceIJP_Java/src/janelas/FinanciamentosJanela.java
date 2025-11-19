@@ -5,18 +5,12 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
-
 import Script.FinanciamentoDAO;
 import Script.FinanciamentoJA;
 import Script.MissaoDAO;
 import Script.MissaoJA;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -26,8 +20,6 @@ import javax.swing.JOptionPane;
 public class FinanciamentosJanela extends javax.swing.JDialog {
 
     private FinanciamentoDAO financiamentoDao = new FinanciamentoDAO();
-    List<FinanciamentoJA> listaFinanciamento = financiamentoDao.getLista();
-
     private MissaoDAO missaoDao = new MissaoDAO();
 
     private boolean emEdicao = false;
@@ -39,8 +31,8 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
 
     FinanciamentosJanela(Main aThis, boolean b) {
         initComponents();
-        carregarTabelaFinanciamentos();
-        configurarComboMissoes();
+        carregarTabelaFinanciamento();
+        carregarMissoes();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -50,27 +42,22 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
         setIconImage(new ImageIcon("src/imgs/iconeFoguete.png").getImage());
     }
 
-    private void carregarTabelaFinanciamentos() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaLancamentos.getModel();
-    modelo.setRowCount(0);
-    for (FinanciamentoJA l : listaFinanciamento) {
-        modelo.addRow(new Object[]{
-            l.getCodFinanciamento(),
-            l.getPatrocinador(),
-            l.getValor(),
-            l.getNomeMissao()
-        });
-    }
-    }
-    private void configurarComboMissoes() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        MissaoDAO fdao = new MissaoDAO();
-        List<MissaoJA> missoes = fdao.getLista();
-        for (MissaoJA f : missoes) {
-            modelo.addElement(f);
+    private void carregarTabelaFinanciamento() {
+        listaFinanciamento.clear();
+        listaFinanciamento.addAll(financiamentoDao.getLista());
+        int linha = listaFinanciamento.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
-        cbMissoes.setModel(modelo);
-        cbMissoes.setSelectedIndex(-1);
+    }
+
+    public void carregarMissoes() {
+        cbMissoes.removeAllItems();
+        for (MissaoJA f : new MissaoDAO().getLista()) {
+            cbMissoes.addItem(f);
+        }
     }
 
     private void trataEdicao(boolean status) {
@@ -105,23 +92,6 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (FinanciamentoJA s : listaFinanciamento) {
-                if (s.getCodFinanciamento()== codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -130,14 +100,17 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaFinanciamento = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<FinanciamentoJA>());
+        listaMissao = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<MissaoJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaLancamentos = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -213,28 +186,31 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
                 .addGap(16, 16, 16))
         );
 
-        tabelaLancamentos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Patrocinador", "Valor", "Missao"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaLancamentos);
-        if (tabelaLancamentos.getColumnModel().getColumnCount() > 0) {
-            tabelaLancamentos.getColumnModel().getColumn(0).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(1).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(2).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(3).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaFinanciamento, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codFinanciamento}"));
+        columnBinding.setColumnName("Cod Financiamento");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${patrocinador}"));
+        columnBinding.setColumnName("Patrocinador");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${valor}"));
+        columnBinding.setColumnName("Valor");
+        columnBinding.setColumnClass(Double.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objMissao}"));
+        columnBinding.setColumnName("Obj Missao");
+        columnBinding.setColumnClass(Script.MissaoJA.class);
+        columnBinding.setEditable(false);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -332,171 +308,78 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        FinanciamentoJA s = new FinanciamentoJA();
-        s.setCodFinanciamento(0);
-        s.setPatrocinador("");
-        s.setValor(0);
-        s.setMissoesCodMissao(0);
-
-        listaFinanciamento.add(s);
-        carregarTabelaFinanciamentos();
-
+        listaFinanciamento.add(new FinanciamentoJA());
         int linha = listaFinanciamento.size() - 1;
-        if (linha >= 0) {
-            tabelaLancamentos.setRowSelectionInterval(linha, linha);
-        }
-
-        inputCodigo.setText("0");
-        inputPatrocinador.setText("");
-        inputValor.setText("");
-        cbMissoes.setSelectedIndex(-1);
-
-        criando = true;
-        emEdicao = true;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
         trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
-            return;
-        }
-
-        FinanciamentoJA s = listaFinanciamento.get(linha);
-
-        inputCodigo.setText(String.valueOf(s.getCodFinanciamento()));;
-        inputPatrocinador.setText(s.getPatrocinador());
-        inputValor.setText(String.valueOf(s.getValor()));
-        
-        for (int i = 0; i < cbMissoes.getItemCount(); i++) {
-            Object obj = cbMissoes.getModel().getElementAt(i);
-            if (obj instanceof MissaoJA) {
-                MissaoJA missao = (MissaoJA) obj;
-                if (missao.getCodMissao() == s.getMissoesCodMissao()){
-                    cbMissoes.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-        
-        criando = false;
-        emEdicao = true;
         trataEdicao(true);
+        inputPatrocinador.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione um Financiamento para remover.");
-            return;
-        }
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-        FinanciamentoJA s = listaFinanciamento.get(linha);
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            FinanciamentoJA objCarga = listaFinanciamento.get(linhaSelecionada);
+            financiamentoDao.remover(objCarga);
 
-        int resposta = JOptionPane.showConfirmDialog(this,
-                "Deseja realmente remover o Financiamento do patrocinador \"" + s.getPatrocinador()+ "\"?",
-                "Confirmação", JOptionPane.YES_NO_OPTION);
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            FinanciamentoDAO dao = new FinanciamentoDAO();
-            if (dao.remover(s.getCodFinanciamento())) {
-                JOptionPane.showMessageDialog(this, "Financiamento removido com sucesso!");
-                listaFinanciamento.remove(s);
-                carregarTabelaFinanciamentos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao remover Financiamento.");
-            }
+            carregarTabelaFinanciamento();
+            trataEdicao(false);
         }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
         // TODO add your handling code here:
-        carregarTabelaFinanciamentos();
+        carregarTabelaFinanciamento();
     }//GEN-LAST:event_atualizarActionPerformed
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) {
-            return;
+        if (validaCampos()) {
+            trataEdicao(false);
+
+            int linhaSelecionada = tabela.getSelectedRow();
+            FinanciamentoJA objFinanciamento = listaFinanciamento.get(linhaSelecionada);
+
+            objFinanciamento.setPatrocinador(inputPatrocinador.getText());
+            objFinanciamento.setValor(Double.parseDouble(inputValor.getText()));
+            objFinanciamento.setObjMissao((MissaoJA) cbMissoes.getSelectedItem());
+
+            financiamentoDao.salvar(objFinanciamento);
+
+            carregarTabelaFinanciamento();
         }
-
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
-            return;
-        }
-
-        if (!validaCampos()) {
-            return;
-        }
-
-        FinanciamentoJA s = listaFinanciamento.get(linha);
-        
-        
-        s.setPatrocinador(inputPatrocinador.getText().trim());
-        
-        try {
-        s.setValor(Double.parseDouble(inputValor.getText().trim()));
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Digite valores numéricos válidos.");
-        return;
-    }
-
-        MissaoJA missaoSelecionada = (MissaoJA) cbMissoes.getSelectedItem();
-        if (missaoSelecionada == null) {
-            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o Lançamento pertence!");
-            cbMissoes.requestFocus();
-            return;
-        }
-        s.setMissoesCodMissao(missaoSelecionada.getCodMissao());
-
-        FinanciamentoDAO dao = new FinanciamentoDAO();
-        boolean ok;
-
-        if (s.getCodFinanciamento()== 0) {
-            ok = dao.inserir(s);
-            if (ok) {
-                inputCodigo.setText(String.valueOf(s.getCodFinanciamento()));
-            }
-        } else {
-            ok = dao.alterar(s);
-        }
-
-        if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar sensor no banco!");
-            return;
-        }
-
-        listaFinanciamento = dao.getLista();
-        carregarTabelaFinanciamentos();
-
-        for (int i = 0; i < listaFinanciamento.size(); i++) {
-            if (listaFinanciamento.get(i).getCodFinanciamento() == s.getCodFinanciamento()) {
-                tabelaLancamentos.setRowSelectionInterval(i, i);
-                break;
-            }
-        }
-
-        emEdicao = false;
-        criando = false;
-        trataEdicao(false);
-
-        JOptionPane.showMessageDialog(this, "Sensor salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
         emEdicao = false;
         criando = false;
+
+        carregarTabelaFinanciamento();
         trataEdicao(false);
-        carregarTabelaFinanciamentos();
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -538,7 +421,7 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbMissoes;
+    private javax.swing.JComboBox<MissaoJA> cbMissoes;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCodigo;
     private javax.swing.JTextField inputPatrocinador;
@@ -549,8 +432,11 @@ public class FinanciamentosJanela extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<FinanciamentoJA> listaFinanciamento;
+    private java.util.List<MissaoJA> listaMissao;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaLancamentos;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

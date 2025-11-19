@@ -14,7 +14,9 @@ import Script.FogueteDao;
 import Script.FogueteJA;
 import Script.MissaoDAO;
 import Script.MissaoJA;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -27,10 +29,10 @@ import javax.swing.JOptionPane;
  */
 public class LancamentosJanela extends javax.swing.JDialog {
 
-    private LancamentosDAO SensorDao = new LancamentosDAO();
-    List<LancamentosJA> listaLancamentos = SensorDao.getLista();
+    private LancamentosDAO LancamentoDao = new LancamentosDAO();
     private FogueteDao fogueteDao = new FogueteDao();
     private MissaoDAO missaoDao = new MissaoDAO();
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     private boolean emEdicao = false;
     private boolean criando = false;
@@ -42,8 +44,8 @@ public class LancamentosJanela extends javax.swing.JDialog {
     LancamentosJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaLancamentos();
-        configurarComboFoguetes();
-        configurarComboMissoes();
+        carregarFoguetes();
+        carregarMissao();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -55,41 +57,28 @@ public class LancamentosJanela extends javax.swing.JDialog {
     }
 
     private void carregarTabelaLancamentos() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaLancamentos.getModel();
-    modelo.setRowCount(0);
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        listaLancamentos.clear();
+        listaLancamentos.addAll(LancamentoDao.getLista());
+        int linha = listaLancamentos.size() - 1;
 
-    for (LancamentosJA l : listaLancamentos) {
-        String dataStr = l.getDataLancamento() != null ? sdf.format(l.getDataLancamento()) : "";
-        modelo.addRow(new Object[]{
-            l.getCodLancamentos(),
-            dataStr,
-            l.getResultado(),
-            l.getFogueteNome(),
-            l.getMissaoNome()
-        });
-    }
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
+        }
     }
 
-    private void configurarComboFoguetes() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        FogueteDao fdao = new FogueteDao();
-        List<FogueteJA> foguetes = fdao.getLista();
-        for (FogueteJA f : foguetes) {
-            modelo.addElement(f);
+    public void carregarFoguetes() {
+        cbFoguetes.removeAllItems();
+        for (FogueteJA f : new FogueteDao().getLista()) {
+            cbFoguetes.addItem(f);
         }
-        cbFoguetes.setModel(modelo);
-        cbFoguetes.setSelectedIndex(-1);
     }
-    private void configurarComboMissoes() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        MissaoDAO fdao = new MissaoDAO();
-        List<MissaoJA> missoes = fdao.getLista();
-        for (MissaoJA f : missoes) {
-            modelo.addElement(f);
+
+    public void carregarMissao() {
+        cbMissoes.removeAllItems();
+        for (MissaoJA f : new MissaoDAO().getLista()) {
+            cbMissoes.addItem(f);
         }
-        cbMissoes.setModel(modelo);
-        cbMissoes.setSelectedIndex(-1);
     }
 
     private void trataEdicao(boolean status) {
@@ -130,23 +119,6 @@ public class LancamentosJanela extends javax.swing.JDialog {
         return true;
     }
 
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (LancamentosJA s : listaLancamentos) {
-                if (s.getCodLancamentos()== codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -155,14 +127,16 @@ public class LancamentosJanela extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listaLancamentos = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<LancamentosJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaLancamentos = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -240,29 +214,31 @@ public class LancamentosJanela extends javax.swing.JDialog {
                 .addGap(16, 16, 16))
         );
 
-        tabelaLancamentos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Data", "Resultado", "Foguete", "Missao"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaLancamentos);
-        if (tabelaLancamentos.getColumnModel().getColumnCount() > 0) {
-            tabelaLancamentos.getColumnModel().getColumn(0).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(1).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(2).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(3).setResizable(false);
-            tabelaLancamentos.getColumnModel().getColumn(4).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaLancamentos, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codLancamento}"));
+        columnBinding.setColumnName("Cod Lancamento");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataLancamento}"));
+        columnBinding.setColumnName("Data Lancamento");
+        columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${resultado}"));
+        columnBinding.setColumnName("Resultado");
+        columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objFoguete}"));
+        columnBinding.setColumnName("Obj Foguete");
+        columnBinding.setColumnClass(Script.FogueteJA.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objMissao}"));
+        columnBinding.setColumnName("Obj Missao");
+        columnBinding.setColumnClass(Script.MissaoJA.class);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -299,6 +275,12 @@ public class LancamentosJanela extends javax.swing.JDialog {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel5.setText("Foguete:");
+
+        cbMissoes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbMissoesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -373,99 +355,45 @@ public class LancamentosJanela extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        LancamentosJA s = new LancamentosJA();
-        s.setCodLancamentos(0);
-        s.setDataLancamento(null);
-        s.setResultado("");
-        s.setFogueteCodFoguete(0);
-        s.setMissoesCodMissao(0);
-
-        listaLancamentos.add(s);
-        carregarTabelaLancamentos();
-
+        listaLancamentos.add(new LancamentosJA());
         int linha = listaLancamentos.size() - 1;
-        if (linha >= 0) {
-            tabelaLancamentos.setRowSelectionInterval(linha, linha);
-        }
-
-        inputCodigo.setText("0");
-        inputData.setText("");
-        inputResultado.setText("");
-        cbFoguetes.setSelectedIndex(-1);
-        cbMissoes.setSelectedIndex(-1);
-
-        criando = true;
-        emEdicao = true;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
         trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar!");
-            return;
-        }
-
-        LancamentosJA s = listaLancamentos.get(linha);
-
-        inputCodigo.setText(String.valueOf(s.getCodLancamentos()));
-        inputData.setText(new SimpleDateFormat("dd/MM/yyyy").format(s.getDataLancamento()));
-        inputResultado.setText(s.getResultado());
-        
-        for (int i = 0; i < cbFoguetes.getItemCount(); i++) {
-            Object obj = cbFoguetes.getModel().getElementAt(i);
-            if (obj instanceof FogueteJA) {
-                FogueteJA foguete = (FogueteJA) obj;
-                if (foguete.getCodFoguete() == s.getFogueteCodFoguete()) {
-                    cbFoguetes.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-        for (int i = 0; i < cbMissoes.getItemCount(); i++) {
-            Object obj = cbMissoes.getModel().getElementAt(i);
-            if (obj instanceof MissaoJA) {
-                MissaoJA missao = (MissaoJA) obj;
-                if (missao.getCodMissao() == s.getMissoesCodMissao()){
-                    cbMissoes.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-        
-        criando = false;
-        emEdicao = true;
         trataEdicao(true);
+        inputData.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione um Lançamento para remover.");
-            return;
-        }
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-        LancamentosJA s = listaLancamentos.get(linha);
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            LancamentosJA objCarga = listaLancamentos.get(linhaSelecionada);
+            LancamentoDao.remover(objCarga);
 
-        int resposta = JOptionPane.showConfirmDialog(this,
-                "Deseja realmente remover o Lançamento\"" + s.getCodLancamentos()+ "\"?",
-                "Confirmação", JOptionPane.YES_NO_OPTION);
-
-        if (resposta == JOptionPane.YES_OPTION) {
-            LancamentosDAO dao = new LancamentosDAO();
-            if (dao.remover(s.getCodLancamentos())) {
-                JOptionPane.showMessageDialog(this, "Lançamento removido com sucesso!");
-                listaLancamentos.remove(s);
-                carregarTabelaLancamentos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao remover sensor.");
-            }
+            carregarTabelaLancamentos();
+            trataEdicao(false);
         }
     }//GEN-LAST:event_removerActionPerformed
 
@@ -476,90 +404,47 @@ public class LancamentosJanela extends javax.swing.JDialog {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) {
-            return;
-        }
+        if (validaCampos()) {
+            trataEdicao(false);
 
-        int linha = tabelaLancamentos.getSelectedRow();
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione uma linha para salvar!");
-            return;
-        }
+            int linhaSelecionada = tabela.getSelectedRow();
+            LancamentosJA objLancamento = listaLancamentos.get(linhaSelecionada);
 
-        if (!validaCampos()) {
-            return;
-        }
-
-        LancamentosJA s = listaLancamentos.get(linha);
-        
-        try {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false);
-        s.setDataLancamento(sdf.parse(inputData.getText().trim()));
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Data inválida! Use dd/MM/yyyy");
-        return;
-    }        
-        s.setResultado(inputResultado.getText().trim());
-
-        FogueteJA fogueteSelecionado = (FogueteJA) cbFoguetes.getSelectedItem();
-        if (fogueteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione o foguete ao qual o Lançamento pertence!");
-            cbFoguetes.requestFocus();
-            return;
-        }
-        s.setFogueteCodFoguete(fogueteSelecionado.getCodFoguete());
-        
-        
-        MissaoJA missaoSelecionada = (MissaoJA) cbMissoes.getSelectedItem();
-        if (missaoSelecionada == null) {
-            JOptionPane.showMessageDialog(this, "Selecione a missao ao qual o Lançamento pertence!");
-            cbMissoes.requestFocus();
-            return;
-        }
-        s.setMissoesCodMissao(missaoSelecionada.getCodMissao());
-
-        LancamentosDAO dao = new LancamentosDAO();
-        boolean ok;
-
-        if (s.getCodLancamentos() == 0) {
-            ok = dao.inserir(s);
-            if (ok) {
-                inputCodigo.setText(String.valueOf(s.getCodLancamentos()));
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            java.time.LocalDate ld = java.time.LocalDate.parse(inputData.getText().trim(), fmt);
+            objLancamento.setDataLancamento(java.sql.Date.valueOf(ld));
+            
+            try {
+                Date dataLanc = sdf.parse(inputData.getText());
+                objLancamento.setDataLancamento(dataLanc);
+            }catch (ParseException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Data inválida! Use o formato dd/MM/yyyy.");
+                return;
             }
-        } else {
-            ok = dao.alterar(s);
+
+            objLancamento.setResultado(inputResultado.getText().trim());
+            objLancamento.setObjFoguete((FogueteJA) cbFoguetes.getSelectedItem());
+            objLancamento.setObjMissao((MissaoJA) cbMissoes.getSelectedItem());
+
+            LancamentoDao.salvar(objLancamento);
+
+            carregarTabelaLancamentos();
         }
-
-        if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar/atualizar sensor no banco!");
-            return;
-        }
-
-        listaLancamentos = dao.getLista();
-        carregarTabelaLancamentos();
-
-        for (int i = 0; i < listaLancamentos.size(); i++) {
-            if (listaLancamentos.get(i).getCodLancamentos() == s.getCodLancamentos()) {
-                tabelaLancamentos.setRowSelectionInterval(i, i);
-                break;
-            }
-        }
-
-        emEdicao = false;
-        criando = false;
-        trataEdicao(false);
-
-        JOptionPane.showMessageDialog(this, "Sensor salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
         emEdicao = false;
         criando = false;
-        trataEdicao(false);
+
         carregarTabelaLancamentos();
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
+
+    private void cbMissoesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbMissoesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbMissoesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -600,8 +485,8 @@ public class LancamentosJanela extends javax.swing.JDialog {
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbFoguetes;
-    private javax.swing.JComboBox<String> cbMissoes;
+    private javax.swing.JComboBox<FogueteJA> cbFoguetes;
+    private javax.swing.JComboBox<MissaoJA> cbMissoes;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCodigo;
     private javax.swing.JTextField inputData;
@@ -613,8 +498,10 @@ public class LancamentosJanela extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<LancamentosJA> listaLancamentos;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaLancamentos;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

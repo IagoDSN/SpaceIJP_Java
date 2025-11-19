@@ -52,7 +52,7 @@ public class MissaoDAO {
 
     public boolean inserir(MissaoJA m) {
         String sql = "INSERT INTO missoes (nomeMissao, objetivoMissao, dataInicio, dataFim, status, Destino_codDestino) "
-                   + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
@@ -82,7 +82,7 @@ public class MissaoDAO {
     public boolean alterar(MissaoJA m) {
 
         String sql = "UPDATE missoes SET nomeMissao=?, objetivoMissao=?, dataInicio=?, dataFim=?, status=?, Destino_codDestino=? "
-                   + "WHERE codMissao=?";
+                + "WHERE codMissao=?";
 
         try {
             PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
@@ -138,5 +138,39 @@ public class MissaoDAO {
                     "Erro de SQL no método remover da classe MissaoDAO: " + e.getMessage());
             return false;
         }
+    }
+
+    public MissaoJA localizarMissao(int codigoMissao) {
+
+        String sql = "SELECT * FROM missoes WHERE codMissao = ?";
+        MissaoJA objMissao = new MissaoJA();
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(sql);
+            pst.setInt(1, codigoMissao);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+
+                objMissao.setCodMissao(rs.getInt("codMissao"));
+                objMissao.setNomeMissao(rs.getString("nomeMissao"));
+                objMissao.setObjetivoMissao(rs.getString("objetivoMissao"));
+                objMissao.setDataInicio(rs.getDate("dataInicio"));
+                objMissao.setDataFim(rs.getDate("dataFim"));
+                objMissao.setStatus(rs.getString("status"));
+
+                int codDestino = rs.getInt("Destino_codDestino");
+                DestinoDAO destinoDAO = new DestinoDAO();
+                objMissao.setObjDestino(destinoDAO.localizarDestino(codDestino));
+
+                return objMissao;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                    "Erro de SQL na classe MissaoDAO no método localizarMissao: " + ex.getMessage());
+        }
+
+        return null;
     }
 }

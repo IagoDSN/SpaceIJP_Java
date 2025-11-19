@@ -207,24 +207,31 @@ public class MissaoJanela extends javax.swing.JDialog {
         org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codMissao}"));
         columnBinding.setColumnName("Cod Missao");
         columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeMissao}"));
         columnBinding.setColumnName("Nome Missao");
         columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objetivoMissao}"));
         columnBinding.setColumnName("Objetivo Missao");
         columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataInicio}"));
         columnBinding.setColumnName("Data Inicio");
         columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataFim}"));
         columnBinding.setColumnName("Data Fim");
         columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${status}"));
         columnBinding.setColumnName("Status");
         columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objDestino}"));
         columnBinding.setColumnName("Obj Destino");
         columnBinding.setColumnClass(Script.DestinoJA.class);
+        columnBinding.setEditable(false);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
         jScrollPane1.setViewportView(tabela);
@@ -457,10 +464,11 @@ public class MissaoJanela extends javax.swing.JDialog {
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-        trataEdicao(false);
         emEdicao = false;
         criando = false;
-        tabela.clearSelection();
+        
+        carregarTabelaMissao();
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**

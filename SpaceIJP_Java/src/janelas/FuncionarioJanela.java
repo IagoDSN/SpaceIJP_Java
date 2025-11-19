@@ -5,16 +5,15 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
-
 import Script.CargoDAO;
 import Script.CargoJA;
 import Script.FuncionarioDAO;
 import Script.FuncionarioJA;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 
@@ -23,11 +22,11 @@ import javax.swing.JOptionPane;
  * @author Iagod
  */
 public class FuncionarioJanela extends javax.swing.JDialog {
-    private FuncionarioDAO FuncionarioDao = new FuncionarioDAO();
-    List<FuncionarioJA> listasFuncionario = FuncionarioDao.getLista();
-    
-    private CargoDAO CargoDao = new CargoDAO();
 
+    private FuncionarioDAO FuncionarioDao = new FuncionarioDAO();
+    private CargoDAO CargoDao = new CargoDAO();
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    
     private boolean emEdicao = false;
     private boolean criando = false;
 
@@ -38,7 +37,7 @@ public class FuncionarioJanela extends javax.swing.JDialog {
     FuncionarioJanela(Main aThis, boolean b) {
         initComponents();
         carregarTabelaFuncionario();
-        configurarComboCargos();
+        carregarCargos();
         salvar.setEnabled(false);
         cancelar.setEnabled(false);
         inputCodigo.setEnabled(false);
@@ -56,36 +55,21 @@ public class FuncionarioJanela extends javax.swing.JDialog {
     }
 
     private void carregarTabelaFuncionario() {
-        DefaultTableModel modelo = (DefaultTableModel) tabelaFuncionario.getModel();
-        modelo.setRowCount(0);
-        for (FuncionarioJA f : listasFuncionario) {
-            modelo.addRow(new Object[]{
-                f.getCodFuncionario(),
-                f.getNomeFuncionario(),
-                f.getCpf(),
-                f.getSalarioAtual(),
-                f.getRg(),
-                f.getTelefone(),
-                f.getCep(),
-                new SimpleDateFormat("dd/MM/yyyy").format(f.getDataNascimento()),
-                f.getStatus(),
-                f.getEmail(),
-                f.getCargoNome()
-            });
+        listasFuncionario.clear();
+        listasFuncionario.addAll(FuncionarioDao.getLista());
+        int linha = listasFuncionario.size() - 1;
+
+        if (linha >= 0) {
+            tabela.setRowSelectionInterval(linha, linha);
+            tabela.scrollRectToVisible(tabela.getCellRect(linha, linha, true));
         }
     }
-    
-    
-    
-    private void configurarComboCargos() {
-        DefaultComboBoxModel modelo = new DefaultComboBoxModel();
-        CargoDAO cdao = new CargoDAO();
-        List<CargoJA> cargos = cdao.getLista();
-        for (CargoJA c : cargos) {
-            modelo.addElement(c);
+
+    public void carregarCargos() {
+        cbCargos.removeAllItems();
+        for (CargoJA f : new CargoDAO().getLista()) {
+            cbCargos.addItem(f);
         }
-        cbCargos.setModel(modelo);
-        cbCargos.setSelectedIndex(-1);
     }
 
     private void trataEdicao(boolean status) {
@@ -97,6 +81,7 @@ public class FuncionarioJanela extends javax.swing.JDialog {
         inputCEP.setEnabled(status);
         inputNascimento.setEnabled(status);
         inputEmail.setEnabled(status);
+        inputStatus.setEnabled(status);
         cbCargos.setEnabled(status);
 
         salvar.setEnabled(status);
@@ -133,29 +118,17 @@ public class FuncionarioJanela extends javax.swing.JDialog {
             inputNascimento.requestFocus();
             return false;
         }
+        if (inputStatus.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Informe o status do Funcionario");
+            inputStatus.requestFocus();
+            return false;
+        }
         if (cbCargos.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(this, "Selecione o cargo do Funcionario");
             cbCargos.requestFocus();
             return false;
         }
         return true;
-    }
-
-    private int gerarCodigoDisponivel() {
-        int codigo = 1;
-        while (true) {
-            boolean existe = false;
-            for (FuncionarioJA f : listasFuncionario) {
-                if (f.getCodFuncionario() == codigo) {
-                    existe = true;
-                    break;
-                }
-            }
-            if (!existe) {
-                return codigo;
-            }
-            codigo++;
-        }
     }
 
     /**
@@ -166,14 +139,17 @@ public class FuncionarioJanela extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        listasFuncionario = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<FuncionarioJA>());
+        ListaCargos = org.jdesktop.observablecollections.ObservableCollections.observableList(new ArrayList<CargoJA>());
         jPanel1 = new javax.swing.JPanel();
         cadastrar = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         remover = new javax.swing.JButton();
         atualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabelaFuncionario = new javax.swing.JTable();
+        tabela = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         inputCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -263,35 +239,66 @@ public class FuncionarioJanela extends javax.swing.JDialog {
                 .addGap(16, 16, 16))
         );
 
-        tabelaFuncionario.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Codigo", "Nome", "CPF", "Salario Atual", "RG", "Telefone", "CEP", "Data Nascimento", "Status", "Email", "Cargo"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(tabelaFuncionario);
-        if (tabelaFuncionario.getColumnModel().getColumnCount() > 0) {
-            tabelaFuncionario.getColumnModel().getColumn(0).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(1).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(2).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(3).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(4).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(5).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(6).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(7).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(8).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(9).setResizable(false);
-            tabelaFuncionario.getColumnModel().getColumn(10).setResizable(false);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listasFuncionario, tabela);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codFuncionario}"));
+        columnBinding.setColumnName("Cod Funcionario");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeFuncionario}"));
+        columnBinding.setColumnName("Nome Funcionario");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${cpf}"));
+        columnBinding.setColumnName("Cpf");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${salarioAtual}"));
+        columnBinding.setColumnName("Salario Atual");
+        columnBinding.setColumnClass(Double.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${rg}"));
+        columnBinding.setColumnName("Rg");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${telefone}"));
+        columnBinding.setColumnName("Telefone");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${cep}"));
+        columnBinding.setColumnName("Cep");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${dataNascimento}"));
+        columnBinding.setColumnName("Data Nascimento");
+        columnBinding.setColumnClass(java.util.Date.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${status}"));
+        columnBinding.setColumnName("Status");
+        columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${email}"));
+        columnBinding.setColumnName("Email");
+        columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${objCargo}"));
+        columnBinding.setColumnName("Obj Cargo");
+        columnBinding.setColumnClass(Script.CargoJA.class);
+        columnBinding.setEditable(false);
+        bindingGroup.addBinding(jTableBinding);
+        jTableBinding.bind();
+        jScrollPane1.setViewportView(tabela);
+        if (tabela.getColumnModel().getColumnCount() > 0) {
+            tabela.getColumnModel().getColumn(0).setResizable(false);
+            tabela.getColumnModel().getColumn(1).setResizable(false);
+            tabela.getColumnModel().getColumn(2).setResizable(false);
+            tabela.getColumnModel().getColumn(3).setResizable(false);
+            tabela.getColumnModel().getColumn(4).setResizable(false);
+            tabela.getColumnModel().getColumn(5).setResizable(false);
+            tabela.getColumnModel().getColumn(6).setResizable(false);
+            tabela.getColumnModel().getColumn(7).setResizable(false);
+            tabela.getColumnModel().getColumn(8).setResizable(false);
+            tabela.getColumnModel().getColumn(9).setResizable(false);
+            tabela.getColumnModel().getColumn(10).setResizable(false);
         }
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -328,8 +335,6 @@ public class FuncionarioJanela extends javax.swing.JDialog {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel5.setText("Cargo:");
-
-        inputStatus.setEditable(false);
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel7.setText("Status:");
@@ -469,79 +474,46 @@ public class FuncionarioJanela extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        bindingGroup.bind();
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarActionPerformed
-        criando = true;
-    emEdicao = true;
-    trataEdicao(true);
-
-    inputCodigo.setText("0");
-    inputNome.setText("");
-    inputCpf.setText("");
-    inputRG.setText("");
-    inputTelefone.setText("");
-    inputCEP.setText("");
-    inputSalario.setText("");
-    inputNascimento.setText("");
-    inputEmail.setText("");
-    cbCargos.setSelectedIndex(-1);
+        listasFuncionario.add(new FuncionarioJA());
+        int linha = listasFuncionario.size() - 1;
+        tabela.setRowSelectionInterval(linha, linha);
+        cadastrar.requestFocus();
+        trataEdicao(true);
     }//GEN-LAST:event_cadastrarActionPerformed
 
     private void editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaFuncionario.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione um funcionário!");
-        return;
-    }
-
-    FuncionarioJA f = listasFuncionario.get(linha);
-
-    inputCodigo.setText(String.valueOf(f.getCodFuncionario()));
-    inputNome.setText(f.getNomeFuncionario());
-    inputCpf.setText(f.getCpf());
-    inputRG.setText(f.getRg());
-    inputTelefone.setText(f.getTelefone());
-    inputCEP.setText(f.getCep());
-    inputSalario.setText(String.valueOf(f.getSalarioAtual()));
-    inputStatus.setText(String.valueOf(f.getStatus()));
-    inputEmail.setText(f.getEmail());
-    inputNascimento.setText(new SimpleDateFormat("dd/MM/yyyy").format(f.getDataNascimento()));
-    
-    for (int i = 0; i < cbCargos.getItemCount(); i++) {
-            Object obj = cbCargos.getModel().getElementAt(i);
-            if (obj instanceof CargoJA) {
-                CargoJA cargo = (CargoJA) obj;
-                if (cargo.getCodCargo() == f.getCargoCodCargo()) {
-                    cbCargos.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
-    
-    criando = false;
-    emEdicao = true;
-    trataEdicao(true);
+        trataEdicao(true);
+        inputNome.requestFocus();
     }//GEN-LAST:event_editarActionPerformed
 
     private void removerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerActionPerformed
         // TODO add your handling code here:
-        int linha = tabelaFuncionario.getSelectedRow();
-    if (linha < 0) {
-        JOptionPane.showMessageDialog(this, "Selecione uma Missao para deletar!");
-        return;
-    }
-    FuncionarioJA f = listasFuncionario.get(linha);
-    int op = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir a Missao " + f.getNomeFuncionario() + "?", "Confirma", JOptionPane.YES_NO_OPTION);
-    if (op != JOptionPane.YES_OPTION) return;
+        int opcao = JOptionPane.showOptionDialog(
+                null,
+                "Confirma exclusão?",
+                "Pergunta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Sim", "Não"},
+                "Sim"
+        );
 
-    boolean ok = FuncionarioDao.remover(f.getCodFuncionario());
-    if (ok) {
-        listasFuncionario.remove(linha);
-        carregarTabelaFuncionario();
-    }
+        if (opcao == 0) {
+            int linhaSelecionada = tabela.getSelectedRow();
+            FuncionarioJA objCarga = listasFuncionario.get(linhaSelecionada);
+            FuncionarioDao.remover(objCarga);
+
+            carregarTabelaFuncionario();
+            trataEdicao(false);
+        }
     }//GEN-LAST:event_removerActionPerformed
 
     private void atualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarActionPerformed
@@ -551,82 +523,45 @@ public class FuncionarioJanela extends javax.swing.JDialog {
 
     private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
         // TODO add your handling code here:
-        if (!emEdicao) return;
+        if (validaCampos()) {
+            trataEdicao(false);
 
-    int linha = tabelaFuncionario.getSelectedRow();
-    FuncionarioJA f;
-    if (criando) {
-        f = new FuncionarioJA();
-        f.setStatus(1); 
-    } else {
-        if (linha < 0) {
-            JOptionPane.showMessageDialog(this, "Selecione um funcionário!");
-            return;
+            int linhaSelecionada = tabela.getSelectedRow();
+            FuncionarioJA objFuncionario = listasFuncionario.get(linhaSelecionada);
+
+            objFuncionario.setNomeFuncionario(inputNome.getText());
+            objFuncionario.setCpf(inputCpf.getText());
+            objFuncionario.setSalarioAtual(Double.parseDouble(inputSalario.getText()));
+            objFuncionario.setRg(inputRG.getText());
+            objFuncionario.setTelefone(inputTelefone.getText());
+            objFuncionario.setCep(inputCEP.getText());
+            try {
+                Date dataNasc = sdf.parse(inputNascimento.getText());
+
+                objFuncionario.setDataNascimento(dataNasc);
+
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Data inválida! Use o formato dd/MM/yyyy.");
+                return;
+            }
+            objFuncionario.setStatus(Integer.parseInt(inputStatus.getText()));
+            objFuncionario.setEmail(inputEmail.getText());
+            objFuncionario.setObjCargo((CargoJA) cbCargos.getSelectedItem());
+
+            FuncionarioDao.salvar(objFuncionario);
+
+            carregarTabelaFuncionario();
         }
-        f = listasFuncionario.get(linha);
-    }
-
-    if (inputNome.getText().trim().isEmpty() || inputCpf.getText().trim().isEmpty() || inputSalario.getText().trim().isEmpty() || inputTelefone.getText().trim().isEmpty() || inputNascimento.getText().trim().isEmpty() || cbCargos.getSelectedIndex() < 0) {
-        JOptionPane.showMessageDialog(this, "Preencha nome, CPF, Salario, Telefone, DataNascimento e selecione cargo!");
-        return;
-    }
-
-    f.setNomeFuncionario(inputNome.getText().trim());
-    f.setCpf(inputCpf.getText().trim());
-    f.setRg(inputRG.getText().trim());
-    f.setTelefone(inputTelefone.getText().trim());
-    f.setCep(inputCEP.getText().trim());
-    f.setEmail(inputEmail.getText().trim());
-
-    try {
-        f.setSalarioAtual(Double.parseDouble(inputSalario.getText().trim()));
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Salário inválido!");
-        return;
-    }
-
-    try {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false);
-        f.setDataNascimento(sdf.parse(inputNascimento.getText().trim()));
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Data inválida! Use dd/MM/yyyy");
-        return;
-    }
-
-    CargoJA cargoSelecionado = (CargoJA) cbCargos.getSelectedItem();
-    f.setCargoCodCargo(cargoSelecionado.getCodCargo());
-
-    boolean ok;
-    if (criando) {
-        ok = FuncionarioDao.inserir(f);
-        if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erro ao cadastrar!");
-            return;
-        }
-    } else {
-        ok = FuncionarioDao.alterar(f);
-        if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erro ao atualizar!");
-            return;
-        }
-    }
-
-    listasFuncionario = FuncionarioDao.getLista();
-    carregarTabelaFuncionario();
-    trataEdicao(false);
-    emEdicao = false;
-    criando = false;
-
-    JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
     }//GEN-LAST:event_salvarActionPerformed
 
     private void cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarActionPerformed
         // TODO add your handling code here:
-        trataEdicao(false);
         emEdicao = false;
         criando = false;
-        tabelaFuncionario.clearSelection();
+
+        carregarTabelaFuncionario();
+        trataEdicao(false);
     }//GEN-LAST:event_cancelarActionPerformed
 
     /**
@@ -665,10 +600,11 @@ public class FuncionarioJanela extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private java.util.List<CargoJA> ListaCargos;
     private javax.swing.JButton atualizar;
     private javax.swing.JButton cadastrar;
     private javax.swing.JButton cancelar;
-    private javax.swing.JComboBox<String> cbCargos;
+    private javax.swing.JComboBox<CargoJA> cbCargos;
     private javax.swing.JButton editar;
     private javax.swing.JTextField inputCEP;
     private javax.swing.JTextField inputCodigo;
@@ -693,8 +629,10 @@ public class FuncionarioJanela extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private java.util.List<FuncionarioJA> listasFuncionario;
     private javax.swing.JButton remover;
     private javax.swing.JButton salvar;
-    private javax.swing.JTable tabelaFuncionario;
+    private javax.swing.JTable tabela;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

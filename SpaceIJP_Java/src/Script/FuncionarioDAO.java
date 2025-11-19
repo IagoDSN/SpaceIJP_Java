@@ -5,93 +5,31 @@
  */
 package Script;
 
-import DAObd.ConexaoBD;
 import java.sql.*;
 import java.util.*;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import DAObd.ConexaoBD;
 
 /**
  *
  * @author Iagod
  */
-
 public class FuncionarioDAO {
 
-    public boolean inserir(FuncionarioJA f) {
-        String sql = "INSERT INTO funcionario (nomeFuncionario, cpf, salarioAtual, rg, telefone, cep, dataNascimento, status, email, cargo_codcargo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setString(1, f.getNomeFuncionario());
-            pst.setString(2, f.getCpf());
-            pst.setDouble(3, f.getSalarioAtual());
-            pst.setString(4, f.getRg());
-            pst.setString(5, f.getTelefone());
-            pst.setString(6, f.getCep());
-            pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
-            pst.setInt(8, f.getStatus());
-            pst.setString(9, f.getEmail());
-            pst.setInt(10, f.getCargoCodCargo());
-
-            if (pst.executeUpdate() > 0) {
-                ResultSet rs = pst.getGeneratedKeys();
-                if (rs.next()) {
-                    f.setCodFuncionario(rs.getInt(1));
-                }
-                return true;
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir funcionário: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean alterar(FuncionarioJA f) {
-        String sql = "UPDATE funcionario SET nomeFuncionario=?, cpf=?, salarioAtual=?, rg=?, telefone=?, cep=?, dataNascimento=?, status=?, email=?, cargo_codcargo=? WHERE codFuncionario=?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setString(1, f.getNomeFuncionario());
-            pst.setString(2, f.getCpf());
-            pst.setDouble(3, f.getSalarioAtual());
-            pst.setString(4, f.getRg());
-            pst.setString(5, f.getTelefone());
-            pst.setString(6, f.getCep());
-            pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
-            pst.setInt(8, f.getStatus());
-            pst.setString(9, f.getEmail());
-            pst.setInt(10, f.getCargoCodCargo());
-            pst.setInt(11, f.getCodFuncionario());
-
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar funcionário: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean remover(int codFuncionario) {
-    String sql = "DELETE FROM funcionario WHERE codFuncionario=?";
-    try {
-        PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-        pst.setInt(1, codFuncionario);
-        return pst.executeUpdate() > 0;
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Erro ao remover funcionário: " + e.getMessage());
-    }
-    return false;
-}
-
+    CargoDAO objCargoDAO = new CargoDAO();
 
     public List<FuncionarioJA> getLista() {
-        List<FuncionarioJA> lista = new ArrayList<>();
-        String sql = "SELECT func.*, c.nomeCargo FROM funcionario func " +
-                     "INNER JOIN cargo c ON func.cargo_codcargo = c.codcargo";
+
+        String mysql = "SELECT * FROM funcionario";
+        List<FuncionarioJA> listaFuncionarios = new ArrayList<>();
 
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
                 FuncionarioJA f = new FuncionarioJA();
+
                 f.setCodFuncionario(rs.getInt("codFuncionario"));
                 f.setNomeFuncionario(rs.getString("nomeFuncionario"));
                 f.setCpf(rs.getString("cpf"));
@@ -102,15 +40,115 @@ public class FuncionarioDAO {
                 f.setDataNascimento(rs.getDate("dataNascimento"));
                 f.setStatus(rs.getInt("status"));
                 f.setEmail(rs.getString("email"));
-                f.setCargoCodCargo(rs.getInt("cargo_codcargo"));
-                f.setCargoNome(rs.getString("nomeCargo"));
-                lista.add(f);
+
+                int codCargo = rs.getInt("cargo_codcargo");
+                f.setObjCargo(objCargoDAO.localizarCargo(codCargo));
+
+                listaFuncionarios.add(f);
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar funcionários: " + e.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe FuncionarioDAO no método getLista: " + ex.getMessage());
         }
 
-        return lista;
+        return listaFuncionarios;
+    }
+
+    public boolean inserir(FuncionarioJA f) {
+        String mysql = "INSERT INTO funcionario (nomeFuncionario, cpf, salarioAtual, rg, telefone, cep, dataNascimento, status, email, cargo_codcargo) "
+                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
+            pst.setString(1, f.getNomeFuncionario());
+            pst.setString(2, f.getCpf());
+            pst.setDouble(3, f.getSalarioAtual());
+            pst.setString(4, f.getRg());
+            pst.setString(5, f.getTelefone());
+            pst.setString(6, f.getCep());
+            pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
+            pst.setInt(8, f.getStatus());
+            pst.setString(9, f.getEmail());
+            pst.setInt(10, f.getObjCargo().getCodCargo());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Funcionário cadastrado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Funcionário não cadastrado!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe FuncionarioDAO no método inserir: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean alterar(FuncionarioJA f) {
+        String mysql = "UPDATE funcionario SET nomeFuncionario=?, cpf=?, salarioAtual=?, rg=?, telefone=?, cep=?, dataNascimento=?, status=?, email=?, cargo_codcargo=? "
+                     + "WHERE codFuncionario=?";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
+            pst.setString(1, f.getNomeFuncionario());
+            pst.setString(2, f.getCpf());
+            pst.setDouble(3, f.getSalarioAtual());
+            pst.setString(4, f.getRg());
+            pst.setString(5, f.getTelefone());
+            pst.setString(6, f.getCep());
+            pst.setDate(7, new java.sql.Date(f.getDataNascimento().getTime()));
+            pst.setInt(8, f.getStatus());
+            pst.setString(9, f.getEmail());
+            pst.setInt(10, f.getObjCargo().getCodCargo());
+            pst.setInt(11, f.getCodFuncionario());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Funcionário alterado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: funcionário não encontrado para alteração!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe FuncionarioDAO no método alterar: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean salvar(FuncionarioJA f) {
+        if (f.getCodFuncionario() == null || f.getCodFuncionario() == 0) {
+            return inserir(f);
+        } else {
+            return alterar(f);
+        }
+    }
+
+    public boolean remover(FuncionarioJA f) {
+        String mysql = "DELETE FROM funcionario WHERE codFuncionario=?";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, f.getCodFuncionario());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Funcionário removido com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: funcionário não encontrado para remoção!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe FuncionarioDAO no método remover: " + ex.getMessage());
+            return false;
+        }
     }
 }
-

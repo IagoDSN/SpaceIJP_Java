@@ -5,33 +5,32 @@
  */
 package Script;
 
+import java.util.Date;
+
 /**
  *
  * @author Iagod
  */
-
-import java.util.Date;
-
 public class FuncionarioJA {
-    private int codFuncionario;
+
+    private Integer codFuncionario;
     private String nomeFuncionario;
     private String cpf;
-    private double salarioAtual;
+    private Double salarioAtual;
     private String rg;
     private String telefone;
     private String cep;
     private Date dataNascimento;
-    private int status;
-    private int cargoCodCargo; // FK
+    private Integer status;
     private String email;
-    private String cargoNome;    // para exibição
 
-    // Getters e Setters
-    public int getCodFuncionario() {
+    private CargoJA objCargo;
+
+    public Integer getCodFuncionario() {
         return codFuncionario;
     }
 
-    public void setCodFuncionario(int codFuncionario) {
+    public void setCodFuncionario(Integer codFuncionario) {
         this.codFuncionario = codFuncionario;
     }
 
@@ -51,11 +50,11 @@ public class FuncionarioJA {
         this.cpf = cpf;
     }
 
-    public double getSalarioAtual() {
+    public Double getSalarioAtual() {
         return salarioAtual;
     }
 
-    public void setSalarioAtual(double salarioAtual) {
+    public void setSalarioAtual(Double salarioAtual) {
         this.salarioAtual = salarioAtual;
     }
 
@@ -91,11 +90,11 @@ public class FuncionarioJA {
         this.dataNascimento = dataNascimento;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -107,25 +106,16 @@ public class FuncionarioJA {
         this.email = email;
     }
 
-    public int getCargoCodCargo() {
-        return cargoCodCargo;
+    public CargoJA getObjCargo() {
+        return objCargo;
     }
 
-    public void setCargoCodCargo(int cargoCodCargo) {
-        this.cargoCodCargo = cargoCodCargo;
-    }
-
-    public String getCargoNome() {
-        return cargoNome;
-    }
-
-    public void setCargoNome(String cargoNome) {
-        this.cargoNome = cargoNome;
+    public void setObjCargo(CargoJA objCargo) {
+        this.objCargo = objCargo;
     }
 
     @Override
     public String toString() {
-        return nomeFuncionario; // útil para exibir em combo ou tabela
+        return nomeFuncionario;
     }
 }
-

@@ -5,8 +5,6 @@
  */
 package janelas;
 
-import java.util.List;
-import javax.swing.table.DefaultTableModel;
 import Script.CargoDAO;
 import Script.CargoJA;
 import java.util.ArrayList;
@@ -171,12 +169,15 @@ public class CargoJanela extends javax.swing.JDialog {
         org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${codCargo}"));
         columnBinding.setColumnName("Cod Cargo");
         columnBinding.setColumnClass(Integer.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nomeCargo}"));
         columnBinding.setColumnName("Nome Cargo");
         columnBinding.setColumnClass(String.class);
+        columnBinding.setEditable(false);
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${salarioInicial}"));
         columnBinding.setColumnName("Salario Inicial");
         columnBinding.setColumnClass(Float.class);
+        columnBinding.setEditable(false);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
         jScrollPane1.setViewportView(tabela);

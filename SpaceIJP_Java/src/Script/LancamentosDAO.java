@@ -6,94 +6,133 @@
 package Script;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JOptionPane;
+import java.util.*;
+import javax.swing.*;
 import DAObd.ConexaoBD;
 
 /**
  *
  * @author Iagod
  */
-
 public class LancamentosDAO {
 
-    public boolean inserir(LancamentosJA l) {
-        String sql = "INSERT INTO lancamentos (dataLancamento, resultado, Foguete_codFoguete, Missoes_codMissao) VALUES (?, ?, ?, ?)";
+    FogueteDao objFogueteDao = new FogueteDao();
+    MissaoDAO objMissaoDao = new MissaoDAO();
+
+    public List<LancamentosJA> getLista() {
+        String mysql = "SELECT * FROM lancamentos";
+        List<LancamentosJA> listaLancamentos = new ArrayList<>();
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setDate(1, new java.sql.Date(l.getDataLancamento().getTime()));
-            pst.setString(2, l.getResultado());
-            pst.setInt(3, l.getFogueteCodFoguete());
-            pst.setInt(4, l.getMissoesCodMissao());
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            ResultSet rs = pst.executeQuery();
 
-            int ok = pst.executeUpdate();
+            while (rs.next()) {
+                LancamentosJA objLan = new LancamentosJA();
 
-            ResultSet rs = pst.getGeneratedKeys();
-            if (rs.next()) {
-                l.setCodLancamentos(rs.getInt(1));
+                objLan.setCodLancamento(rs.getInt("codLancamentos"));
+                objLan.setDataLancamento(rs.getDate("dataLancamento"));
+                objLan.setResultado(rs.getString("resultado"));
+
+                int codFoguete = rs.getInt("Foguete_codFoguete");
+                objLan.setObjFoguete(objFogueteDao.localizarFoguete(codFoguete));
+
+                int codMissao = rs.getInt("Missoes_codMissao");
+                objLan.setObjMissao(objMissaoDao.localizarMissao(codMissao));
+
+                listaLancamentos.add(objLan);
             }
 
-            return ok > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao inserir lançamento: " + e.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe LancamentosDAO no método getLista: " + ex.getMessage());
         }
-        return false;
+
+        return listaLancamentos;
+    }
+
+    public boolean inserir(LancamentosJA l) {
+        String mysql = "INSERT INTO lancamentos (dataLancamento, resultado, "
+                + "Foguete_codFoguete, Missoes_codMissao) VALUES (?, ?, ?, ?)";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
+            pst.setDate(1, new java.sql.Date(l.getDataLancamento().getTime()));
+            pst.setString(2, l.getResultado());
+            pst.setInt(3, l.getObjFoguete().getCodFoguete());
+            pst.setInt(4, l.getObjMissao().getCodMissao());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Lançamento cadastrado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Lançamento não cadastrado!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe LancamentosDAO no método inserir: " + ex.getMessage());
+            return false;
+        }
     }
 
     public boolean alterar(LancamentosJA l) {
-        String sql = "UPDATE lancamentos SET dataLancamento=?, resultado=?, Foguete_codFoguete=?, Missoes_codMissao=? WHERE codLancamentos=?";
+        String mysql = "UPDATE lancamentos SET dataLancamento=?, resultado=?, "
+                + "Foguete_codFoguete=?, Missoes_codMissao=? WHERE codLancamentos=?";
+
         try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+
             pst.setDate(1, new java.sql.Date(l.getDataLancamento().getTime()));
             pst.setString(2, l.getResultado());
-            pst.setInt(3, l.getFogueteCodFoguete());
-            pst.setInt(4, l.getMissoesCodMissao());
-            pst.setInt(5, l.getCodLancamentos());
+            pst.setInt(3, l.getObjFoguete().getCodFoguete());
+            pst.setInt(4, l.getObjMissao().getCodMissao());
+            pst.setInt(5, l.getCodLancamento());
 
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar lançamento: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean remover(int codLancamentos) {
-        String sql = "DELETE FROM lancamentos WHERE codLancamentos=?";
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            pst.setInt(1, codLancamentos);
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao remover lançamento: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public List<LancamentosJA> getLista() {
-        List<LancamentosJA> lista = new ArrayList<>();
-        String sql = "SELECT l.*, f.nomeFoguete, m.nomeMissao FROM lancamentos l "
-                   + "JOIN foguete f ON l.Foguete_codFoguete = f.codFoguete "
-                   + "JOIN missoes m ON l.Missoes_codMissao = m.codMissao";
-
-        try {
-            PreparedStatement pst = ConexaoBD.getPreparedStatement(sql);
-            ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                LancamentosJA l = new LancamentosJA();
-                l.setCodLancamentos(rs.getInt("codLancamentos"));
-                l.setDataLancamento(rs.getDate("dataLancamento"));
-                l.setResultado(rs.getString("resultado"));
-                l.setFogueteCodFoguete(rs.getInt("Foguete_codFoguete"));
-                l.setMissoesCodMissao(rs.getInt("Missoes_codMissao"));
-                l.setFogueteNome(rs.getString("nomeFoguete"));
-                l.setMissaoNome(rs.getString("nomeMissao"));
-                lista.add(l);
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Lançamento alterado com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: lançamento não encontrado para alteração!");
+                return false;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar lançamentos: " + e.getMessage());
-        }
 
-        return lista;
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe LancamentosDAO no método alterar: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean salvar(LancamentosJA l) {
+        if (l.getCodLancamento() == null || l.getCodLancamento() == 0) {
+            return inserir(l);
+        } else {
+            return alterar(l);
+        }
+    }
+
+    public boolean remover(LancamentosJA l) {
+        String mysql = "DELETE FROM lancamentos WHERE codLancamentos=?";
+
+        try {
+            PreparedStatement pst = ConexaoBD.getPreparableStatement(mysql);
+            pst.setInt(1, l.getCodLancamento());
+
+            if (pst.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(null, "Lançamento removido com sucesso!");
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro: lançamento não encontrado para remoção!");
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                "Erro de SQL na classe LancamentosDAO no método remover: " + ex.getMessage());
+            return false;
+        }
     }
 }

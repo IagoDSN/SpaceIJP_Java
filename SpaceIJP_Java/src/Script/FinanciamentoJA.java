@@ -4,26 +4,26 @@
  * and open the template in the editor.
  */
 package Script;
-
 /**
  *
  * @author Iagod
  */
-
 public class FinanciamentoJA {
-    private int codFinanciamento;
+
+    private Integer codFinanciamento;
     private String patrocinador;
-    private double valor;
-    private int missoesCodMissao;
-    private String nomeMissao;
+    private Double valor;
 
-    public FinanciamentoJA() {}
+    private MissaoJA objMissao;
 
-    public int getCodFinanciamento() {
+    public FinanciamentoJA() {
+    }
+
+    public Integer getCodFinanciamento() {
         return codFinanciamento;
     }
 
-    public void setCodFinanciamento(int codFinanciamento) {
+    public void setCodFinanciamento(Integer codFinanciamento) {
         this.codFinanciamento = codFinanciamento;
     }
 
@@ -35,27 +35,24 @@ public class FinanciamentoJA {
         this.patrocinador = patrocinador;
     }
 
-    public double getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 
-    public int getMissoesCodMissao() {
-        return missoesCodMissao;
+    public MissaoJA getObjMissao() {
+        return objMissao;
     }
 
-    public void setMissoesCodMissao(int missoesCodMissao) {
-        this.missoesCodMissao = missoesCodMissao;
+    public void setObjMissao(MissaoJA objMissao) {
+        this.objMissao = objMissao;
     }
 
-    public String getNomeMissao() {
-        return nomeMissao;
-    }
-
-    public void setNomeMissao(String nomeMissao) {
-        this.nomeMissao = nomeMissao;
+    @Override
+    public String toString() {
+        return patrocinador;
     }
 }
