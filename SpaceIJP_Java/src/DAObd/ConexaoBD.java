@@ -15,10 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ConexaoBD {
-     private static final String banco = "jdbc:mysql://localhost:3306/space_ijp";
+     private static final String banco = "jdbc:mysql://localhost:3307/space_ijp";
     private static final String driver = "com.mysql.cj.jdbc.Driver";
     private static final String usuario = "root";
-    private static final String senha = "ogai2009";
+    private static final String senha = "1234";
     private static Connection con = null;
 
     public ConexaoBD() {
